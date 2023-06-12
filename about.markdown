@@ -4,15 +4,16 @@ title: About
 permalink: /about/
 ---
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
+My name is Yuri Silva, I’m a developer based in São Paulo, Brazil. 🇧🇷
 
-You can find the source code for Minima at GitHub:
-[jekyll][jekyll-organization] /
-[minima](https://github.com/jekyll/minima)
+I’ve been working as a software developer for more than a decade. I’m fluent in full-stack development, and software architecture, and love to learn new ways of applying technology to solve real problems.
 
-You can find the source code for Jekyll at GitHub:
-[jekyll][jekyll-organization] /
-[jekyll](https://github.com/jekyll/jekyll)
+I have worked with multiple technologies during all these years, like PHP, Java, Ruby, Python, and some proprietary solutions like Pegasystems, AWS, Azure, and others.
 
+I’m currently working as Manager in a big IT company, but I constantly work on side projects for fun.
 
-[jekyll-organization]: https://github.com/jekyll
+I also like to talk about business, investment, music, and Brazilian classical guitar.
+
+You can find me mostly on [Twitter][twitter].
+
+[twitter]: https://twitter.com/yurisilvapi
