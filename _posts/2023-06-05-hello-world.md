@@ -12,7 +12,7 @@ Firesky was a Guitar Hero clone, written in C with SDL. It took me months to bui
 
 Many years later, in 2018, I started another blog to talk about investments. I'm not an expert in this topic, but I was very excited about new things that I was learning about stocks, options, and the whole [FIRE movement][fire], after reading [The 4-Hour Workweek book from Tim Ferris][four-hour-workweek]. I created a lot of posts in that period and learned a lot about blogging, hosting WordPress, creating useful content, and things like that. 
 
-In 2020, I tried Medium, but it didn't fit an important thing to me: owning the content. I prefer to have full control of my hosting and data. 
+In 2020, I tried Medium, but it didn't work for me because I didn't want to invest time posting content on a third-party channel.
 
 I created another blog in 2022 to talk about technology. I bought a beautiful WordPress theme and wasted a lot of days improving interface and fixing little CSS bugs, improving SEO, and performance, but I totally lost the main purpose of all of that: **writing great content**.
 
