@@ -256,3 +256,26 @@ table {
     border: 1px solid $grey-color-light;
   }
 }
+
+
+/**
+ * Buttons 
+ */
+
+.btn {
+  background-color: $grey-color;
+  border: none;
+  color: white !important;
+  padding: 10px 17px;
+  text-align: center;
+  text-decoration: none !important;
+  display: inline-block;
+  font-size: 14px;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.btn-orange {
+  background-color: $orange-color;
+  color: #FFF;
+}
