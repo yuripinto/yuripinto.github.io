@@ -2,7 +2,7 @@
 layout: post
 title:  "Remote Work is not new"
 date:   2023-06-12 09:51:00 -0300
-categories: about-me
+categories: work
 permalink: remote-work-is-not-new
 ---
 
