@@ -1,4 +1,3 @@
-
 ---
 layout: post
 title:  "You should try Omakub"
