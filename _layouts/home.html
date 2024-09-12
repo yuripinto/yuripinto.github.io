@@ -10,29 +10,24 @@ layout: default
   {{ content }}
 
   {%- if site.posts.size > 0 -%}
-    {% assign postsByYear =
-      site.posts | group_by_exp:"post", "post.date | date: '%Y'" %}
-    {% for year in postsByYear %}
-      <h2 class="post-list-heading">{{ year.name }}</h2>
-        <ul class="post-list">
-          {% for post in year.items %}
-            {%- if post.hidden != true -%}
-              <li>
-                {%- assign date_format = site.minima.date_format | default: "%b %d" -%}
-                <span class="post-meta">{{ post.date | date: date_format }}</span>
-                <h3>
-                  <a class="post-link" href="{{ post.url | relative_url }}">
-                    {{ post.title | escape }}
-                  </a>
-                </h3>
-                {%- if site.show_excerpts -%}
-                  {{ post.excerpt }}
-                {%- endif -%}
-              </li>
+    <ul class="post-list">
+      {% for post in site.posts %}
+        {%- if post.hidden != true -%}
+          <li>
+            {%- assign date_format = "%Y-%m-%d" -%}
+            <span class="post-meta">{{ post.date | date: date_format }}</span>
+            <h3>
+              <a class="post-link" href="{{ post.url | relative_url }}">
+                {{ post.title | escape }}
+              </a>
+            </h3>
+            {%- if site.show_excerpts -%}
+              {{ post.excerpt }}
             {%- endif -%}
-          {% endfor %}
-        </ul>
-    {% endfor %}
+          </li>
+        {%- endif -%}
+      {% endfor %}
+    </ul>
   {%- endif -%}
 
   <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | relative_url }}">via RSS</a></p>
