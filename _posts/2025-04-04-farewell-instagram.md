@@ -6,8 +6,6 @@ categories: general
 permalink: farewell-instagram
 ---
 
-# Farewell Instagram
-
 Despite my extremely busy days—many of which involve over 10 hours of work—my iPhone’s Screen Time report shows that on average I spend one to two hours on Instagram daily. I admit that aside from work itself, there’s no other activity that takes up that much of my daily time (except for commuting in São Paulo, where I don’t have much choice at the moment).
 
 Thinking more about the content I see there, I can’t really recall a lot of interesting things. Even though I follow big celebrities and musicians, my day-to-day feed is filled with useless curiosities, posts from people I haven’t talked to in over 10 years, and of course, lots of ads for things I can’t even buy. A few years ago, I did a purge on Twitter, removing everyone I didn’t want to see—whether they were friends or not—so I could follow only what’s interesting (not by chance, many people in tech and AI). As a result, Twitter really became my repository of interesting stuff.
