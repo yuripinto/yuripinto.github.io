@@ -6,25 +6,25 @@ categories: about-me
 permalink: hello-world
 ---
 
-Over all those years working and studying IT, I started multiple personal websites and blogs and lost most of them. In the late 2009, when I started studying programming in high school, I created my first Wordpress blog to talk about my first project for science fair: Firesky. This is name is very cheesy, but it was cool back in that time.
+Ao longo de todos esses anos trabalhando e estudando TI, comecei vários sites e blogs pessoais — e perdi a maioria deles. No final de 2009, quando comecei a estudar programação no ensino médio, criei meu primeiro blog no Wordpress para falar sobre meu primeiro projeto para a feira de ciências: **Firesky**. Esse nome é bem brega, mas na época parecia muito legal.
 
-Firesky was a Guitar Hero clone, written in C with SDL. It took me months to build, with just one single file main.c with **more than one thousand lines of code** (please don't do it), which I thought was super amazing to see in my old Code::Blocks IDE. I wrote the code while my team worked on the guitar controller, made by cheap wood, mouse internal switches, and basic keyboard circuit. (found a similar solution [in this link][guitar-hero-guitar]).
+Firesky era um clone do Guitar Hero, escrito em C com SDL. Levei meses para desenvolver, usando apenas um único arquivo `main.c` com **mais de mil linhas de código** (por favor, não façam isso), o que eu achava incrível de ver na minha antiga IDE Code::Blocks. Eu escrevia o código enquanto meu time trabalhava no controle da guitarra, feito com madeira barata, switches internos de mouse e circuito básico de teclado. (encontrei uma solução parecida [neste link][guitar-hero-guitar]).
 
-Many years later, in 2018, I started another blog to talk about investments. I'm not an expert in this topic, but I was very excited about new things that I was learning about stocks, options, and the whole [FIRE movement][fire], after reading [The 4-Hour Workweek book from Tim Ferris][four-hour-workweek]. I created a lot of posts in that period and learned a lot about blogging, hosting WordPress, creating useful content, and things like that. 
+Muitos anos depois, em 2018, comecei outro blog para falar sobre investimentos. Eu não sou especialista nesse assunto, mas estava muito empolgado com as novidades que estava aprendendo sobre ações, opções e todo o [movimento FIRE][fire], depois de ler o livro [Trabalhe 4 Horas por Semana, de Tim Ferris][four-hour-workweek]. Criei muitos posts nesse período e aprendi bastante sobre blogging, hospedagem no WordPress, criação de conteúdo útil e coisas do tipo.
 
-In 2020, I tried Medium, but it didn't work for me because I didn't want to invest time posting content on a third-party channel.
+Em 2020, tentei usar o Medium, mas não funcionou pra mim, porque eu não queria investir tempo postando conteúdo em uma plataforma de terceiros.
 
-I created another blog in 2022 to talk about technology. I bought a beautiful WordPress theme and wasted a lot of days improving interface and fixing little CSS bugs, improving SEO, and performance, but I totally lost the main purpose of all of that: **writing great content**.
+Criei outro blog em 2022 para falar sobre tecnologia. Comprei um tema WordPress bonito e perdi vários dias melhorando a interface, corrigindo bugs pequenos de CSS, melhorando o SEO e a performance, mas acabei perdendo totalmente o foco principal de tudo isso: **escrever um bom conteúdo**.
 
-Looking for a definitive way to create a blog and keep it for many years, different from what I did with all the others, I considered using plain HTML and hosting on a platform like Amazon S3, without a database, backend, and anything too complex, just a bunch of plain text files. So I found the [Jekyll project][jekyll], like many projects in the Ruby community, makes things much simpler.
+Procurando uma forma definitiva de criar um blog e mantê-lo por muitos anos — diferente do que fiz com os outros — considerei usar apenas HTML puro e hospedar numa plataforma como o Amazon S3, sem banco de dados, backend, nem nada muito complexo, apenas um monte de arquivos de texto. Foi aí que encontrei o projeto [Jekyll][jekyll], que como muitos projetos da comunidade Ruby, simplifica bastante as coisas.
 
-Jekyll is a static website generator, you write your markdown files and it generates a completely static website, like this one. Now I can write my posts and store them in a git repository, without a database needed! It seems a lite bit late to be excited about old technology, but it's very cool to find a technology that really fits in your neededs.
+O Jekyll é um gerador de sites estáticos — você escreve seus arquivos em Markdown e ele gera um site totalmente estático, como este aqui. Agora posso escrever meus posts e armazená-los em um repositório Git, sem precisar de banco de dados! Pode parecer meio tarde para se empolgar com tecnologia "antiga", mas é muito legal encontrar uma ferramenta que realmente atende às suas necessidades.
 
-I'm really happy to be back.
+Estou muito feliz por estar de volta.
 
-Welcome!
+**Bem-vindo!**
 
 [guitar-hero-guitar]: https://www.instructables.com/Make-a-Guitar-Hero-Kit-for-your-PC/
-[fire]: https://en.wikipedia.org/wiki/FIRE_movement
+[fire]: https://pt.wikipedia.org/wiki/Movimento_FIRE
 [four-hour-workweek]: https://www.goodreads.com/book/show/368593.The_4_Hour_Workweek
 [jekyll]: https://jekyllrb.com/
