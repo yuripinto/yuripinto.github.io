@@ -4,6 +4,7 @@ title: "DIA – Resumo de Designing Data-Intensive Applications (Martin Kleppman
 date: 2025-06-24
 categories: [arquitetura, livros, sistemas-distribuidos]
 tags: [ddia, arquitetura, escalabilidade, replicação, banco-de-dados]
+published: false
 ---
 
 Resumo de Designing Data-Intensive Applications (Martin Kleppmann)
