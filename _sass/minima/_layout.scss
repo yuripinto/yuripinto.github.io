@@ -46,7 +46,7 @@
     color: $text-color;
     line-height: $base-line-height;
     text-decoration: none;
-    padding: 5px;
+    padding: 6px 8px 6px 8px;
     // Gaps between nav items, but not on the last one
     &:not(:last-child) {
       margin-right: 20px;
@@ -204,8 +204,8 @@
 
   > li {
     margin-bottom: calc($spacing-unit / 10);
-    display: flex; 
-    align-items: baseline; 
+    display: flex;
+    align-items: baseline;
     gap: 15px;
   }
 }
@@ -214,6 +214,7 @@
   text-align: center;
   font-size: $small-font-size;
   color: $grey-color;
+  min-width: 82px;
 }
 
 .post-link {

@@ -1,21 +1,21 @@
 ---
 layout: page
-title: About
-permalink: /about/
+title: Sobre
+permalink: /sobre/
 ---
 
-My name is Yuri Silva, I’m from Rio de Janeiro, Brazil. 🇧🇷
+Olá! Bem-vindo ao meu blog!
 
-I’ve been working as a software developer for more than a decade. I’m fluent in full-stack development, and software architecture, and love to learn new ways of applying technology to solve real problems.
+Trabalho como desenvolvedor de software há mais de uma década. Tenho larga experiência em desenvolvimento web e arquitetura de software, e adoro aprender novas formas de aplicar tecnologia para resolver problemas reais.
 
-I have worked with multiple technologies during all these years, like PHP, Java, Ruby, Python, and some proprietary solutions like Pegasystems, AWS, Azure, and others.
+Trabalhei com múltiplas tecnologias durante todos esses anos, como Java, Ruby, Python, PHP e algumas soluções proprietárias como Pegasystems, AWS, Azure, e outras.
 
-I’m currently working as manager in a big IT company, but I constantly work on side projects for fun.
+Atualmente atuo como gerente em uma grande empresa de TI, mas constantemente trabalho em projetos paralelos por diversão.
 
-I also like to talk about business, investment, music, and brazilian classical guitar.
+Também gosto de falar sobre negócios, investimentos e música.
 
-I have a lovely family with my wife, my son, and my lovely dog (barking in heaven).
+Tenho uma família adorável com minha esposa, meus filhos e minha cachorra amada (latindo no céu).
 
-You can find me mostly on [Twitter][twitter].
+Você pode me encontrar também no [Twitter][twitter].
 
 [twitter]: https://twitter.com/yurisilvapi
