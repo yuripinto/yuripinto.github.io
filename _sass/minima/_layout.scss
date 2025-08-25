@@ -5,6 +5,7 @@
   // border-bottom: 1px solid $grey-color-light;
   min-height: $spacing-unit * 1.865;
   padding: 4px;
+  padding-top: 1rem;
 
   // Positioning context for the mobile navigation icon
   position: relative;
@@ -46,7 +47,7 @@
     color: $text-color;
     line-height: $base-line-height;
     text-decoration: none;
-    padding: 6px 8px 6px 8px;
+    padding: 6px 16px 6px 16px;
     // Gaps between nav items, but not on the last one
     &:not(:last-child) {
       margin-right: 20px;
