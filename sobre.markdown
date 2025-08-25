@@ -6,16 +6,16 @@ permalink: /sobre/
 
 Olá! Bem-vindo ao meu blog!
 
-Trabalho como desenvolvedor de software há mais de uma década. Tenho larga experiência em desenvolvimento web e arquitetura de software, e adoro aprender novas formas de aplicar tecnologia para resolver problemas reais.
+Trabalho com tecnologia há quase duas décadas. Tenho larga experiência em desenvolvimento web e arquitetura de software, e adoro aprender novas formas de aplicar tecnologia para resolver problemas reais.
 
-Trabalhei com múltiplas tecnologias durante todos esses anos, como Java, Ruby, Python, PHP e algumas soluções proprietárias como Pegasystems, AWS, Azure, e outras.
+Durante esses anos atuei em diversos papéis, desde desenvolvedor (Java, Ruby, Python, PHP, etc), arquiteto, líder e gerente de times, até comercial.
 
-Atualmente atuo como gerente em uma grande empresa de TI, mas constantemente trabalho em projetos paralelos por diversão.
+Atualmente atuo como gerente técnico em uma grande banco, mas constantemente trabalho em projetos paralelos para estudar e aplicar métodos e formas novas que costumo aprender em livros e em palestras.
 
-Também gosto de falar sobre negócios, investimentos e música.
+Também gosto de falar sobre negócios (claro, o objetivo de verdade da tecnologia), investimentos e música.
 
-Tenho uma família adorável com minha esposa, meus filhos e minha cachorra amada (latindo no céu).
+Tenho uma bela família com minha esposa, meus filhos e minha cachorra (latindo no céu).
 
-Você pode me encontrar também no [Twitter][twitter].
+Ultimamente tenho estado mais ativo no [Twitter][twitter].
 
 [twitter]: https://twitter.com/yurisilvapi
