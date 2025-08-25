@@ -11,16 +11,16 @@ Em uma conversa recente com um CTO, discutindo a modernização de um legado mon
 
 Segundo os autores, existem quatro tipos de times e três modos principais de interação entre eles, e que sair desses padrões pode ser nocivo para a organização:
 
-**Stream-aligned**
+**Stream-aligned**:
 Times responsáveis por um fluxo de valor claro, entregando diretamente ao cliente, com foco ponta a ponta.
 
-**Plataforma**
+**Plataforma**:
 Criam serviços que aceleram os times stream-aligned, removendo complexidades.
 
-**Enabling**
+**Enabling**:
 Ajudam outros times com dicas, orientações e conhecimentos específicos. Atuam de forma temporária com cada time, mas são uma unidade permanente na organização.
 
-**Subsistemas complexos**
+**Subsistemas complexos**:
 Lidam com componentes de alta complexidade e exigem conhecimento muito específico. Exemplos incluem times de modelos de recomendação com IA ou de desenvolvimento em camadas próximas ao hardware.
 
 | ![image](/assets/team-topologies/team-topologies-teams.webp) |
@@ -29,13 +29,13 @@ Lidam com componentes de alta complexidade e exigem conhecimento muito específi
 
 E suas interações:
 
-**Colaboração**
+**Colaboração**:
 Trabalham em conjunto para descobrir ou definir tópicos (APIs, tecnologias, etc.).
 
-**X-as-a-Service**
+**X-as-a-Service**:
 Um time provê um serviço que outro consome, com pouca necessidade de colaboração, a partir de definições claras e bem estabelecidas.
 
-**Facilitação**
+**Facilitação**:
 Um time ajuda e orienta o outro.
 
 
@@ -43,6 +43,6 @@ Um time ajuda e orienta o outro.
 |:--:|
 | *Fonte: [https://teamtopologies.com/key-concepts](https://teamtopologies.com/key-concepts)* |
 
-A força de limitar-se a essas categorias é que isso ajuda a identificar problemas organizacionais e propor melhorias, especialmente em contextos de modernização, otimização ou fusões de estruturas.
+Limitar-se a essas categorias ajuda a identificar problemas organizacionais e propor melhorias, especialmente em contextos de modernização, otimização ou fusões de estruturas.
 
 É uma leitura essencial para profissionais de tecnologia em qualquer nível, mas especialmente valiosa para líderes e arquitetos de soluções que buscam transformar suas organizações.
