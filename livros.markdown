@@ -21,20 +21,15 @@ Inspirado nesses e em outros pontos, eu tenho lido e relido livros importantes p
 
 **Clean Code - Uncle Bob**
 
-Livro clássico sobre melhores práticas de código, muito importante e polêmico. Não é necessário seguir tudo ao pé da letra, mas fica um excelente guia e uma boa discussão sobre melhores práticas.
+Livro clássico sobre melhores práticas de desenvolvimento, famoso por introduzir o conceito SOLID. Na minha opinião, todos os desenvolvedores deveriam ler esse livro, porém a versão em português tem muitos erros de tradução e usa exemplos ainda no Java 5.
 
 **Clean Architecture - Uncle Bob**
 
-Livro quase continuação do Clean Code (recomendo ler o clean code primeiro). Ele abstrai um pouco mais o conceito de SOLID, explica conceito de arquitetura limpa
+Livro que considero continuação do Clean Code. Introduz a Arquitetura Limpa como método de separação em camada e fala sobre técnicas de redução de acoplamento, como inversão de dependências e injecão de dependências. Gosto bastante do livro, apesar do Uncle Bob ser muito prolixo.
 
 **Design Data-Intensive Application - Martin Kleppmann**
 
-Livro muito importante sobre técnicas utilizadas em aplicações críticas, um pouco mais "moderno" que os outros. leitura obrigatória para desenvolvedores backend em ambiente. (Apenas em inglês)
-
-**Software Architecture: The Hard Parts – Neal Ford**
-
-(Apenas em inglês)
-
+Um dos melhores livros atuais de engenharias de software. Leitura obrigatória para desenvolvedores. (Apenas em inglês)
 
 ### DS&A
 
@@ -48,7 +43,3 @@ Apesar de terem diversos outros livros clássicos de DS&A, esse livro particular
 **Head First Java - Kathy Sierra & Bert Bates**
 
 Esse livro é um clássico dos desenvolvedores Java, foi um dos primeiros livros que eu li quando comecei minha carreira. Passou de um livro excelente para um livro extremamente desatualizado, mas a nova edição de 2022 cobre até o Java 17. Vale a leitura caso seja iniciante em Java ou queira se atualizar.
-
-**Spring in Action - Craig Walls**
-
-(Apenas em inglês)
