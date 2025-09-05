@@ -1,12 +1,12 @@
 ---
-layout: page
+desenvolvimentoayout: page
 title: Sobre
 permalink: /sobre/
 ---
 
 Olá! Bem-vindo ao meu blog!
 
-Trabalho com tecnologia há quase duas décadas. Tenho larga experiência em desenvolvimento web e arquitetura de software, e adoro aprender novas formas de aplicar tecnologia para resolver problemas reais.
+Trabalho com tecnologia há quase duas décadas. Tenho larga experiência em desenvolvimento web, modernizações, arquitetura de software, e adoro aprender novas formas de aplicar tecnologia para resolver problemas reais.
 
 Durante esses anos atuei em diversos papéis, desde desenvolvedor (Java, Ruby, Python, PHP, etc), arquiteto, líder e gerente de times, até comercial.
 
