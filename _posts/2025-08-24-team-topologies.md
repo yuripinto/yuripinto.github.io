@@ -2,6 +2,7 @@
 layout: post
 title: "Team Topologies"
 date: 2025-08-24
+permalink: "team-topologies"
 tags: [arquitetura, engenharia-de-software, team-topologies, ddd, times, modernização]
 ---
 
