@@ -3,7 +3,6 @@ layout: modern-default
 ---
 
 {%- include modern-blog-title.html -%}
-{%- include modern-links.html -%}
 
 <article class="bg-white p-6 rounded-lg shadow mb-6">
   {%- assign date_format = "%Y-%m-%d" -%}
@@ -14,6 +13,8 @@ layout: modern-default
     {{ content }}
   </div>
 </article>
+
+{%- include modern-links.html -%}
 
 <div class="px-6 pb-8">
   <div class="flex justify-center space-x-4">

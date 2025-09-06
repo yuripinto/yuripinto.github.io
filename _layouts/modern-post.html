@@ -3,7 +3,6 @@ layout: modern-default
 ---
 
 {%- include modern-blog-title.html -%}
-{%- include modern-links.html -%}
 
 <article class="bg-white p-6 rounded-lg shadow mb-6 post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
@@ -29,6 +28,8 @@ layout: modern-default
 
   <a class="u-url" href="{{ page.url | relative_url }}" hidden></a>
 </article>
+
+{%- include modern-links.html -%}
 
 <div class="px-6 pb-8">
   <div class="flex justify-center space-x-4">

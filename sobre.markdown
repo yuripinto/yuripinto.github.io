@@ -10,7 +10,7 @@ Trabalho com tecnologia há quase duas décadas. Tenho larga experiência em des
 
 Durante esses anos atuei em diversos papéis, desde desenvolvedor (Java, Ruby, Python, PHP, etc), arquiteto, líder e gerente de times, até comercial.
 
-Atualmente atuo como gerente técnico em uma grande banco, mas constantemente trabalho em projetos paralelos para estudar e aplicar métodos e formas novas que costumo aprender em livros e em palestras.
+Atualmente atuo como gerente técnico em um grande banco, mas constantemente trabalho em projetos paralelos para estudar e aplicar métodos e formas novas que costumo aprender em livros e em palestras.
 
 Também gosto de falar sobre negócios (claro, o objetivo de verdade da tecnologia), investimentos e música.
 
