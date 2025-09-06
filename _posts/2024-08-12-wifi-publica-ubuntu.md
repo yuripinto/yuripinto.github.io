@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: modern-post
 title:  "Wifi Pública no Ubuntu"
 date:   2024-08-12 11:40:00 -0300
 categories: linux

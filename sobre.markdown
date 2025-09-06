@@ -1,5 +1,5 @@
 ---
-desenvolvimentoayout: page
+layout: modern-page
 title: Sobre
 permalink: /sobre/
 ---

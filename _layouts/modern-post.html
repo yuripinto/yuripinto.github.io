@@ -1,0 +1,38 @@
+---
+layout: modern-default
+---
+
+{%- include modern-blog-title.html -%}
+{%- include modern-links.html -%}
+
+<article class="bg-white p-6 rounded-lg shadow mb-6 post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header>
+    <h1 class="font-bold text-2xl mb-2" itemprop="name headline">{{ page.title | escape }}</h1>
+    <p class="post-meta text-sm text-gray-500 mb-3">Publicado em
+      <time class="dt-published" datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">
+        {%- assign date_format = site.minima.date_format | default: "%-d/%m/%Y" -%}
+        {{ page.date | date: date_format }}
+      </time>
+      {%- if page.author -%}
+        • <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span class="p-author h-card" itemprop="name">{{ page.author }}</span></span>
+      {%- endif -%}</p>
+  </header>
+
+  <div class="md-content" itemprop="articleBody">
+    {{ content }}
+  </div>
+
+  {%- if site.disqus.shortname -%}
+    {%- include disqus_comments.html -%}
+  {%- endif -%}
+
+  <a class="u-url" href="{{ page.url | relative_url }}" hidden></a>
+</article>
+
+<div class="px-6 pb-8">
+  <div class="flex justify-center space-x-4">
+    <a href="/" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-lg text-sm">Voltar para home</a>
+  </div>
+</div>
+

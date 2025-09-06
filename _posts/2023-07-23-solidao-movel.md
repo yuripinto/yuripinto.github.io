@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: modern-post
 title:  "Solidão Móvel"
 date:   2023-07-23 23:47:29 -0300
 categories: general

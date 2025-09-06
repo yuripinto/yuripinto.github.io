@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: modern-post
 title:  "Trabalho remoto não é novidade"
 date:   2023-06-12 09:51:00 -0300
 categories: work

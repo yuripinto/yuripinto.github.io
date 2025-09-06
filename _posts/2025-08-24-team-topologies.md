@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: modern-post
 title: "Team Topologies"
 date: 2025-08-24
 permalink: "team-topologies"
@@ -7,6 +7,8 @@ tags: [arquitetura, engenharia-de-software, team-topologies, ddd, times, moderni
 ---
 
 Em uma conversa recente com um CTO, discutindo a modernização de um legado monolítico complexo em que ele e seu time atuam, ele comentou bastante sobre como os conceitos do livro *Team Topologies* fundamentaram o plano que eles montaram. Depois de fazer meu trabalho de casa (ler o livro e várias resenhas), fiquei com muita vontade de compartilhar minhas impressões.
+
+<!--more-->
 
 *Team Topologies* é um livro que aplica e operacionaliza a lei de Conway, explorando como as estruturas de times afetam diretamente os resultados das empresas, em especial no desenho dos times de tecnologia, e como falhas nesse design podem ser danosas. Além disso, o livro é repleto de exemplos, cases e referências, sendo muito rico em insights e conexões com situações reais. Vejo uma ligação direta com o *Domain-Driven Design* de Eric Evans: enquanto Evans fala sobre design de software para remover silos entre negócio e tecnologia, *Team Topologies* mostra como alinhar a estrutura dos times para reduzir fricções organizacionais e reforçar esse alinhamento. Os autores reforçam a limitação da carga cognitiva como o pilar central para definir a divisão das estruturas organizacionais.
 

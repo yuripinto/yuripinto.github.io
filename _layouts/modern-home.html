@@ -1,0 +1,41 @@
+---
+layout: modern-default
+---
+
+<div class="pt-12 px-6 flex flex-col space-y-2">
+  <div class="flex justify-center">
+    <img src="assets/profile-picture.png" alt="Yuri Silva" class="w-32 h-32 rounded-full mb-4">
+  </div>
+  {%- if site.title -%}
+  <h1 class="font-bold text-5xl leading-120 text-center">{{ site.title }}</h1>
+  {%- endif -%}
+  <p class="pt-2 text-gray-700 leading-none text-center">Bem-vindo! Trabalho com tecnologia há quase duas décadas e compartilho nesse site o que eu venho estudando e experimentando</p>
+</div>
+
+{%- include modern-links.html -%}
+
+<div class="pt-2 px-6 pb-12">
+  {%- if site.posts.size > 0 -%}
+    <div class="">
+      {% for post in site.posts %}
+        {%- if post.hidden != true -%}
+          <div class="bg-white p-6 rounded-lg shadow mb-6">
+            {%- assign date_format = "%Y-%m-%d" -%}
+            <h3 class="font-bold text-xl">
+              <a href="{{ post.url | relative_url }}">{{ post.title | escape }}</a>
+            </h3>
+            <div class="text-sm text-gray-500 mb-3">
+              <span>{{ post.date | date: "%d/%m/%Y" }}</span> <!--• <span>{{ post.read_time }} minutos de leitura</span>-->
+            </div>
+            <div class="text-gray-700 text-sm mb-2">{{ post.excerpt }}</div>
+            <a href="{{ post.url | relative_url }}" class="pt-2 text-blue-600 hover:text-blue-800 font-semibold">Ler mais →</a>
+          </div>
+        {%- endif -%}
+      {% endfor %}
+    </ul>
+  {%- endif -%}
+  </div>
+</div>
+
+
+

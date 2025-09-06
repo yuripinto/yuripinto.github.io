@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: modern-post
 title: "DIA – Resumo de Designing Data-Intensive Applications (Martin Kleppmann)"
 date: 2025-06-24
 categories: [arquitetura, livros, sistemas-distribuidos]

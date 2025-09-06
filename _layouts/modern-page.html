@@ -1,0 +1,23 @@
+---
+layout: modern-default
+---
+
+{%- include modern-blog-title.html -%}
+{%- include modern-links.html -%}
+
+<article class="bg-white p-6 rounded-lg shadow mb-6">
+  {%- assign date_format = "%Y-%m-%d" -%}
+  <header>
+    <h1 class="font-bold text-2xl mb-2">{{ page.title | escape }}</h1>
+  </header>
+  <div class="md-content">
+    {{ content }}
+  </div>
+</article>
+
+<div class="px-6 pb-8">
+  <div class="flex justify-center space-x-4">
+    <a href="/" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-lg text-sm">Voltar para home</a>
+  </div>
+</div>
+

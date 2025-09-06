@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: modern-page
 title: Livros
 permalink: /recomendacoes-livros/
 ---

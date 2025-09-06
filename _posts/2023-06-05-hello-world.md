@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: modern-post
 title:  "Hello World"
 date:   2023-06-05 01:25:00 -0300
 categories: about-me

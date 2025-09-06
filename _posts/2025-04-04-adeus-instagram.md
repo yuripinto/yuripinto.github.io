@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: modern-post
 title:  "Adeus, Instagram"
 date:   2025-04-07 20:24:00 -0300
 categories: general
