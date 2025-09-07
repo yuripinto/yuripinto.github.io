@@ -1,7 +1,7 @@
 ---
 layout: modern-post
 title: "O erro dos sêniors"
-date: 2025-08-24
+date: 2025-09-07
 permalink: "erro-dos-seniors"
 tags: [arquitetura, engenharia-de-software, team-topologies, times]
 ---
