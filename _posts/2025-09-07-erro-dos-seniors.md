@@ -8,7 +8,7 @@ tags: [arquitetura, engenharia-de-software, team-topologies, times]
 
 Eu sou complemente apaixonado por programação. Sempre gostei e ainda sinto o prazer de abrir um editor e escrever linhas de código, principalmente se for para resolver problemas da vida real. Mas essa não é a realidade da maioria dos desenvolvedores sêniores e especialistas que conheci durante esses anos trabalhando com tecnologia.
 
-<!—more—>
+<!--more-->
 Acredito que o motivo seja histórico: longos ciclos de projeto, com tecnologias monótonas, legadas, verbosas, em ambientes valorizam velocidade e não qualidade, principalmente por falta de conhecimento técnico das camadas de liderança. Problemas em devops, observabilidade, e alta dependências entre times agravam a situação pros desenvolvedores mais experientes.
 
 Dado esse contexto, para muitos, o sonho é abandonar o dia a dia de entregas, até mesmo técnico de vez. Em ambientes que em a “carreira em Y” se distancia das entregas de valor para o cliente, esses desenvolvedores migram muita das vezes para estruturas de arquiteturas, compliance, estruturais, entre outros que teoricamente recebem menos pressões corporativas.  
