@@ -4,6 +4,7 @@ title:  "Trabalho remoto não é novidade"
 date:   2023-06-12 09:51:00 -0300
 categories: work
 permalink: trabalho-remoto-basecamp
+published: false
 ---
 
 Com todo esse movimento do mercado para o retorno ao trabalho presencial, comecei a procurar como algumas empresas conseguiram se adaptar ao modelo remoto permanente mesmo antes da pandemia.
