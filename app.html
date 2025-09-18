@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tartaruga LOGO — versão web</title>
+<style>
+  :root { --bg:#0f172a; --panel:#111827; --ink:#e5e7eb; --muted:#9ca3af; --accent:#22c55e; }
+  * { box-sizing: border-box; }
+  body {
+    margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial;
+    background: linear-gradient(120deg,#0b1022,#0a132e 40%,#091024);
+    color: var(--ink);
+    min-height:100dvh; display:grid; grid-template-columns: 360px 1fr; gap: 0;
+  }
+  header {
+    grid-column: 1 / -1; padding:16px 20px; border-bottom: 1px solid #1f2937;
+    display:flex; align-items:center; gap:14px; background: #0b1226e6; backdrop-filter: blur(6px); position: sticky; top:0; z-index: 5;
+  }
+  header h1 { font-size:18px; margin:0; letter-spacing:.3px; }
+  header .badge { font-size:12px; color:#a7f3d0; background:#064e3b; padding:3px 8px; border-radius:999px; }
+  .sidebar {
+    padding:16px; border-right:1px solid #1f2937; background:#0c132a;
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .panel {
+    background: #0e162f; border:1px solid #1f2a44; border-radius:12px; padding:12px;
+  }
+  .panel h3 { margin:0 0 8px 0; font-size:14px; color:#c7d2fe; font-weight:600; }
+  textarea {
+    width:100%; min-height:180px; resize: vertical; border-radius:10px; border:1px solid #1f2a44;
+    background:#0b1226; color:var(--ink); padding:10px 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  .buttons { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+  button {
+    appearance:none; border:1px solid #1f2a44; background:#111b39; color:var(--ink); padding:8px 12px;
+    border-radius:10px; cursor:pointer; font-weight:600; font-size:14px;
+  }
+  button.primary { background:#16a34a; border-color:#15803d; }
+  button.ghost { background:#0b1226; }
+  button:disabled { opacity:.5; cursor:not-allowed; }
+  .status { font-size:12px; color:var(--muted); margin-top:6px; min-height: 16px; }
+  .canvas-wrap { padding:16px; display:grid; align-items:stretch; justify-items:stretch; }
+  #stage {
+    background:#ffffff; width:100%; height:100%; border-radius:12px; box-shadow: 0 0 0 1px #1f2937 inset;
+  }
+  .grid { display:grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .hint { font-size:12px; color:#a5b4fc; }
+  .row { display:flex; gap:10px; align-items:center; flex-wrap: wrap; }
+  select, input[type="number"] {
+    background:#0b1226; color:var(--ink); border:1px solid #1f2a44; border-radius:8px; padding:6px 10px;
+  }
+  .kbd {
+    display:inline-block; padding:2px 6px; border:1px solid #1f2a44; border-bottom-width:3px; border-radius:6px; background:#0b1226; font-family:ui-monospace,monospace; font-size:12px;
+  }
+  footer { grid-column: 1 / -1; padding:10px 16px; font-size:12px; color:#9ca3af; text-align:center; border-top:1px solid #1f2937; background:#0c132a;}
+  @media (max-width:1000px){
+    body { grid-template-columns: 1fr; }
+    .sidebar { order: 2; }
+    .canvas-wrap { order: 1; height: 62dvh; }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1>🐢 Tartaruga LOGO — web</h1>
+    <span class="badge">educacional</span>
+  </header>
+
+  <aside class="sidebar">
+    <div class="panel">
+      <h3>Comandos (português)</h3>
+      <div class="grid">
+        <div>
+          <div class="hint">
+            <div><span class="kbd">PARA_FRENTE X</span> / <span class="kbd">PARA_TRAS X</span></div>
+            <div><span class="kbd">DIREITA °</span> / <span class="kbd">ESQUERDA °</span></div>
+            <div><span class="kbd">REPITA N [ ... ]</span> (suporta aninhado)</div>
+          </div>
+        </div>
+        <div>
+          <div class="hint">
+            <div><span class="kbd">COR nome|#hex</span> (AZUL, VERMELHO…)</div>
+            <div><span class="kbd">ESPESSURA n</span></div>
+            <div><span class="kbd">LEVANTA_CANETA</span> / <span class="kbd">BAIXA_CANETA</span></div>
+            <div><span class="kbd">POSICIONA x y</span> • <span class="kbd">HEADING °</span></div>
+            <div><span class="kbd">LIMPAR</span> • <span class="kbd">RESET</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="row" style="margin-top:8px;">
+        <label>Velocidade:</label>
+        <input id="speed" type="number" min="0" max="1000" value="600" style="width:90px" />
+        <span class="hint">px/seg (0 = instantâneo)</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Desafios</h3>
+      <div class="row">
+        <select id="challenge">
+          <option value="">— escolher —</option>
+          <option value="quadrado">Quadrado (100px)</option>
+          <option value="triangulo">Triângulo equilátero (100px)</option>
+          <option value="estrela">Estrela 5 pontas (aresta 120px)</option>
+        </select>
+        <button class="ghost" id="loadChallenge">Carregar dica</button>
+        <button class="ghost" id="ghostToggle">Mostrar molde</button>
+      </div>
+      <div class="hint" id="challengeHint" style="margin-top:6px;"></div>
+    </div>
+
+    <div class="panel">
+      <h3>Programa</h3>
+      <textarea id="code"></textarea>
+      <div class="buttons">
+        <button id="run" class="primary">▶️ Executar</button>
+        <button id="stop">⏹ Parar</button>
+        <button id="clear" class="ghost">🧹 Limpar</button>
+        <button id="reset" class="ghost">🔁 Reset</button>
+        <button id="sample" class="ghost">Exemplos</button>
+      </div>
+      <div class="status" id="status"></div>
+    </div>
+  </aside>
+
+  <main class="canvas-wrap">
+    <canvas id="stage"></canvas>
+  </main>
+
+  <footer>
+    Dica: desenhe um quadrado com <span class="kbd">REPITA 4 [PARA_FRENTE 100 DIREITA 90]</span>.
+  </footer>
+
+<script>
+(function(){
+  // ============ util ============
+  const $ = sel => document.querySelector(sel);
+  const stage = $('#stage');
+  const ctx = stage.getContext('2d');
+  const statusEl = $('#status');
+  const speedEl = $('#speed');
+  let W=0,H=0;
+
+  function resizeCanvas(){
+    // devicePixelRatio-aware crisp canvas
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const maxW = Math.min(window.innerWidth, 1600);
+    const maxH = Math.min(window.innerHeight - 140, 1200);
+    const cssW = stage.parentElement.clientWidth;
+    const cssH = Math.max(420, Math.min(maxH, window.innerWidth<1000 ? window.innerHeight*0.62 : window.innerHeight-120));
+    stage.style.width = cssW+'px';
+    stage.style.height = cssH+'px';
+    stage.width = Math.floor(cssW * dpr);
+    stage.height = Math.floor(cssH * dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    W = cssW; H = cssH;
+    drawAll();
+  }
+  window.addEventListener('resize', resizeCanvas);
+
+  // ============ turtle state ============
+  const state = {
+    x: 0, y: 0, heading: 0, // 0° = para a direita (leste), cresce no sentido horário
+    penDown: true,
+    color: '#111827',
+    width: 2,
+    path: [], // {x1,y1,x2,y2,color,width}
+    ghost: null, // array de segmentos do molde
+    running: false,
+    stopFlag: false
+  };
+
+  function resetState(){
+    state.x = W/2; state.y = H/2; state.heading = 0;
+    state.penDown = true; state.color = '#111827'; state.width = 2;
+    state.path = [];
+    drawAll();
+  }
+
+  function clearDrawing(){
+    state.path = [];
+    drawAll();
+  }
+
+  // ============ drawing ============
+  function drawAll(){
+    // fundo
+    ctx.save();
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0,0,W,H);
+
+    // ghost (molde)
+    if (state.ghost && state.ghost.visible) {
+      ctx.globalAlpha = .15;
+      ctx.strokeStyle = '#1f2937';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for(const seg of state.ghost.segs){
+        ctx.moveTo(seg.x1, seg.y1);
+        ctx.lineTo(seg.x2, seg.y2);
+      }
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+
+    // traços desenhados
+    for(const seg of state.path){
+      ctx.strokeStyle = seg.color;
+      ctx.lineWidth = seg.width;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(seg.x1, seg.y1);
+      ctx.lineTo(seg.x2, seg.y2);
+      ctx.stroke();
+    }
+
+    // tartaruga
+    drawTurtle(state.x, state.y, state.heading);
+    ctx.restore();
+  }
+
+  function drawTurtle(x,y,deg){
+    const r = 12; // tamanho
+    const rad = (deg) * Math.PI/180;
+    // triângulo apontando para heading
+    const p1 = { x: x + Math.cos(rad)*r, y: y + Math.sin(rad)*r };
+    const p2 = { x: x + Math.cos(rad+2.5)*r, y: y + Math.sin(rad+2.5)*r };
+    const p3 = { x: x + Math.cos(rad-2.5)*r, y: y + Math.sin(rad-2.5)*r };
+
+    ctx.save();
+    ctx.fillStyle = '#16a34a';
+    ctx.strokeStyle = '#065f46';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); ctx.lineTo(p3.x,p3.y); ctx.closePath();
+    ctx.fill(); ctx.stroke();
+
+    // indicador de caneta
+    ctx.beginPath();
+    ctx.fillStyle = state.penDown ? '#ef4444' : '#9ca3af';
+    ctx.arc(x, y, 3, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function lineTo(nx, ny){
+    if (state.penDown) {
+      state.path.push({ x1: state.x, y1: state.y, x2: nx, y2: ny, color: state.color, width: state.width });
+    }
+    state.x = nx; state.y = ny;
+  }
+
+  // ============ parser ============
+  const COLOR_MAP = {
+    PRETO:'#111827', CINZA:'#6b7280', AZUL:'#2563eb', VERDE:'#16a34a', VERMELHO:'#ef4444',
+    AMARELO:'#eab308', LARANJA:'#f97316', ROXO:'#8b5cf6', ROSA:'#ec4899', MARROM:'#8b4513'
+  };
+
+  function tokenize(input){
+    // upper, keep brackets, split by whitespace, remove comments starting with //
+    const lines = input.split('\n').map(l=>{
+      const idx = l.indexOf('//');
+      return (idx>=0 ? l.slice(0,idx) : l);
+    });
+    let s = lines.join('\n').toUpperCase();
+    s = s.replace(/,/g,' ');
+    s = s.replace(/\[/g,' [ ').replace(/\]/g,' ] ');
+    const raw = s.trim().split(/\s+/).filter(Boolean);
+    return raw;
+  }
+
+  function parse(tokens){
+    let i=0;
+    function parseBlock(){
+      const cmds = [];
+      while(i < tokens.length){
+        const t = tokens[i++];
+        if (t === ']') break;
+        if (t === '[') { // stray open bracket
+          cmds.push({op:'BLOCK', body: parseBlock()});
+          continue;
+        }
+        switch(t){
+          case 'PARA_FRENTE':
+          case 'PARA-FRENTE':
+          case 'FRENTE':
+          case 'PF': {
+            const v = number(tokens[i++]);
+            cmds.push({op:'FWD', val:v});
+            break;
+          }
+          case 'PARA_TRAS':
+          case 'PARA-TRAS':
+          case 'PARA_TRÁS':
+          case 'PARA-TRÁS':
+          case 'TRAS':
+          case 'TRÁS':
+          case 'PT': {
+            const v = number(tokens[i++]);
+            cmds.push({op:'BACK', val:v});
+            break;
+          }
+          case 'DIREITA':
+          case 'DIR':
+          case 'DR': {
+            const v = number(tokens[i++]);
+            cmds.push({op:'RIGHT', val:v});
+            break;
+          }
+          case 'ESQUERDA':
+          case 'ESQ':
+          case 'EQ': {
+            const v = number(tokens[i++]);
+            cmds.push({op:'LEFT', val:v});
+            break;
+          }
+          case 'REPITA':
+          case 'REPETE':
+          case 'REPEAT': {
+            const n = int(tokens[i++]);
+            if (tokens[i++] !== '[') throw parseErr('Esperado "[" após REPITA');
+            const body = parseBlock();
+            cmds.push({op:'REPEAT', times:n, body});
+            break;
+          }
+          case 'COR': {
+            const c = tokens[i++];
+            cmds.push({op:'COLOR', val: c});
+            break;
+          }
+          case 'ESPESSURA':
+          case 'LARGURA': {
+            const v = number(tokens[i++]);
+            cmds.push({op:'WIDTH', val:v});
+            break;
+          }
+          case 'LEVANTA_CANETA':
+          case 'PENUP':
+          case 'LEVANTA':
+            cmds.push({op:'PEN', down:false}); break;
+          case 'BAIXA_CANETA':
+          case 'PENDOWN':
+          case 'BAIXA':
+            cmds.push({op:'PEN', down:true}); break;
+          case 'POSICIONA':
+          case 'SETXY':
+          case 'SETPOS': {
+            const x = number(tokens[i++]); const y = number(tokens[i++]);
+            cmds.push({op:'SETPOS', x,y});
+            break;
+          }
+          case 'HEADING':
+          case 'SETA': {
+            const a = number(tokens[i++]);
+            cmds.push({op:'HEADING', val:a});
+            break;
+          }
+          case 'LIMPAR':
+          case 'CLEAR':
+            cmds.push({op:'CLEAR'}); break;
+          case 'RESET':
+            cmds.push({op:'RESET'}); break;
+          case 'VELOCIDADE':
+          case 'SPEED': {
+            const v = number(tokens[i++]); cmds.push({op:'SPEED', val:int(v)}); break;
+          }
+          default:
+            throw parseErr(`Comando desconhecido: ${t}`);
+        }
+      }
+      return cmds;
+    }
+
+    function number(tok){
+      if (tok===undefined) throw parseErr('Número esperado e não encontrado.');
+      const v = Number(tok.replace(',', '.'));
+      if (!isFinite(v)) throw parseErr(`Número inválido: ${tok}`);
+      return v;
+    }
+    function int(tok){
+      const v = number(tok)|0; return v;
+    }
+    function parseErr(msg){ return new Error(msg); }
+
+    const ast = parseBlock();
+    return ast;
+  }
+
+  // ============ executor ============
+  async function runProgram(ast){
+    const pxPerSec = Math.max(0, Number(speedEl.value)||0);
+    const animate = pxPerSec > 0;
+    const stepDelay = 1000/60;
+
+    async function execList(list){
+      for (const cmd of list){
+        if (state.stopFlag) throw new Error('Execução interrompida');
+        await exec(cmd);
+      }
+    }
+    async function exec(cmd){
+      switch(cmd.op){
+        case 'FWD': return move(cmd.val);
+        case 'BACK': return move(-cmd.val);
+        case 'RIGHT': state.heading = normDeg(state.heading + cmd.val); drawAll(); return sleep(0);
+        case 'LEFT': state.heading = normDeg(state.heading - cmd.val); drawAll(); return sleep(0);
+        case 'REPEAT':
+          for(let i=0;i<cmd.times;i++) { await execList(cmd.body); }
+          return;
+        case 'COLOR': {
+          const up = cmd.val.toUpperCase();
+          state.color = COLOR_MAP[up] || cmd.val; drawAll(); return;
+        }
+        case 'WIDTH': state.width = Math.max(0.5, cmd.val); drawAll(); return;
+        case 'PEN': state.penDown = cmd.down; drawAll(); return;
+        case 'SETPOS': {
+          const prev = state.penDown; state.penDown = false;
+          lineTo(cmd.x, cmd.y);
+          state.penDown = prev; drawAll(); return;
+        }
+        case 'HEADING': state.heading = normDeg(cmd.val); drawAll(); return;
+        case 'CLEAR': clearDrawing(); return;
+        case 'RESET': resetState(); return;
+        case 'SPEED': speedEl.value = String(cmd.val); return;
+        default: return;
+      }
+    }
+
+    function normDeg(a){ a%=360; if(a<0) a+=360; return a; }
+    function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
+
+    async function move(dist){
+      if (!animate || Math.abs(dist) < 1){
+        const nx = state.x + Math.cos(state.heading*Math.PI/180)*dist;
+        const ny = state.y + Math.sin(state.heading*Math.PI/180)*dist;
+        lineTo(nx, ny); drawAll(); return;
+      }
+      // anima em pequenos passos
+      const step = Math.sign(dist) * Math.max(1, Math.round(pxPerSec/60));
+      let left = dist;
+      while (Math.sign(left) === Math.sign(dist) && Math.abs(left) > 0.5){
+        if (state.stopFlag) return;
+        const d = Math.abs(left) < Math.abs(step) ? left : step;
+        const nx = state.x + Math.cos(state.heading*Math.PI/180)*d;
+        const ny = state.y + Math.sin(state.heading*Math.PI/180)*d;
+        lineTo(nx, ny); drawAll();
+        left -= d;
+        await sleep(stepDelay);
+      }
+    }
+
+    await execList(ast);
+  }
+
+  // ============ ghost (moldes dos desafios) ============
+  function setGhost(type){
+    if (!type){ state.ghost = null; drawAll(); return; }
+    const cx = W/2, cy = H/2;
+    const segs = [];
+    function add(x1,y1,x2,y2){ segs.push({x1,y1,x2,y2}); }
+    if (type==='quadrado'){
+      const s=100, x=cx-50, y=cy-50;
+      add(x,y, x+s,y); add(x+s,y, x+s,y+s); add(x+s,y+s, x,y+s); add(x,y+s, x,y);
+    } else if (type==='triangulo'){
+      const s=100;
+      const h = Math.sqrt(3)/2*s;
+      const A={x:cx, y:cy-h/2}, B={x:cx-s/2, y:cy+h/2}, C={x:cx+s/2, y:cy+h/2};
+      add(A.x,A.y,B.x,B.y); add(B.x,B.y,C.x,C.y); add(C.x,C.y,A.x,A.y);
+    } else if (type==='estrela'){
+      const R=80, r=32; const n=5;
+      const pts=[];
+      for(let i=0;i<2*n;i++){
+        const ang = (-90 + i*180/n) * Math.PI/180;
+        const rad = (i%2===0? R : r);
+        pts.push({x:cx+Math.cos(ang)*rad, y:cy+Math.sin(ang)*rad});
+      }
+      for(let i=0;i<pts.length;i++){
+        const a=pts[i], b=pts[(i+1)%pts.length]; add(a.x,a.y,b.x,b.y);
+      }
+    }
+    state.ghost = { visible: false, segs };
+    drawAll();
+  }
+
+  // ============ UI wiring ============
+  $('#run').addEventListener('click', async ()=>{
+    try{
+      state.stopFlag = false;
+      state.running = true;
+      setStatus('Executando…');
+      const tokens = tokenize($('#code').value);
+      const ast = parse(tokens);
+      await runProgram(ast);
+      setStatus('✔ Concluído');
+    } catch(err){
+      setStatus('⚠ ' + err.message);
+      console.error(err);
+    } finally {
+      state.running = false;
+    }
+  });
+
+  $('#stop').addEventListener('click', ()=>{
+    state.stopFlag = true;
+    setStatus('Execução interrompida.');
+  });
+  $('#clear').addEventListener('click', ()=>{ clearDrawing(); setStatus('Tela limpa.'); });
+  $('#reset').addEventListener('click', ()=>{ resetState(); setStatus('Resetado para o centro.'); });
+  $('#sample').addEventListener('click', ()=>{
+    $('#code').value =
+`// Exemplo 1 — Quadrado
+COR AZUL
+ESPESSURA 3
+REPITA 4 [ PARA_FRENTE 120 DIREITA 90 ]
+
+// Exemplo 2 — Estrela
+POSICIONA 200 200
+COR #ef4444
+ESPESSURA 2
+REPITA 5 [ PARA_FRENTE 200 DIREITA 144 ]
+
+// Exemplo 3 — Triângulo colorido
+RESET
+COR VERDE
+ESPESSURA 4
+REPITA 3 [ PARA_FRENTE 150 DIREITA 120 ]
+
+// Comandos úteis:
+// LEVANTA_CANETA / BAIXA_CANETA
+// LIMPAR, RESET, HEADING 0..359, POSICIONA x y, VELOCIDADE px/seg`;
+    setStatus('Exemplos carregados.');
+  });
+
+  $('#loadChallenge').addEventListener('click', ()=>{
+    const val = $('#challenge').value;
+    const hint = $('#challengeHint');
+    if (!val){ hint.textContent = 'Escolha um desafio acima.'; return; }
+    let text='';
+    if (val==='quadrado'){
+      text = 'Desenhe um QUADRADO de 100px. Dica: REPITA 4 [ PARA_FRENTE 100 DIREITA 90 ]';
+      $('#code').value = 'COR AZUL\nESPESSURA 3\nREPITA 4 [ PARA_FRENTE 100 DIREITA 90 ]';
+    } else if (val==='triangulo'){
+      text = 'Desenhe um TRIÂNGULO equilátero de lado 100px. Dica: 3 lados com giros de 120°.';
+      $('#code').value = 'COR VERDE\nESPESSURA 3\nREPITA 3 [ PARA_FRENTE 100 DIREITA 120 ]';
+    } else if (val==='estrela'){
+      text = 'Desenhe uma ESTRELA de 5 pontas. Dica: REPITA 5 [ PARA_FRENTE 120 DIREITA 144 ]';
+      $('#code').value = 'COR VERMELHO\nESPESSURA 2\nREPITA 5 [ PARA_FRENTE 120 DIREITA 144 ]';
+    }
+    hint.textContent = text;
+    setStatus('Desafio carregado.');
+  });
+
+  $('#ghostToggle').addEventListener('click', ()=>{
+    const type = $('#challenge').value;
+    if (!type){ setStatus('Escolha um desafio para mostrar o molde.'); return; }
+    if (!state.ghost || !state.ghost.segs) setGhost(type);
+    state.ghost.visible = !state.ghost.visible;
+    drawAll();
+    setStatus(state.ghost.visible ? 'Molde visível.' : 'Molde oculto.');
+  });
+
+  function setStatus(msg){ statusEl.textContent = msg; }
+
+  // init
+  resizeCanvas(); resetState(); setGhost(null);
+  // programa padrão
+  $('#code').value =
+`// Experimente: segure SHIFT para letras maiúsculas se seu navegador não corrige.
+// Quadrado:
+COR AZUL
+ESPESSURA 3
+REPITA 4 [ PARA_FRENTE 100 DIREITA 90 ]`;
+})();
+</script>
+</body>
+</html>
