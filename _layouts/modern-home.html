@@ -2,7 +2,7 @@
 layout: modern-default
 ---
 
-<div class="pt-12 px-6 pb-4 flex flex-col space-y-2">
+<div class="pt-12 px-6 pb-4 flex flex-col space-y-2 max-w-sm mx-auto">
   <div class="flex justify-center">
     <img src="assets/profile-picture.png" alt="Yuri Silva" class="w-32 h-32 rounded-full mb-4">
   </div>
@@ -16,10 +16,10 @@ layout: modern-default
 
 <div class="pt-2 px-6 pb-12">
   {%- if site.posts.size > 0 -%}
-    <div class="">
+    <div class="md:grid md:grid-cols-1 md:grid-cols-2 md:gap-6">
       {% for post in site.posts %}
         {%- if post.hidden != true -%}
-          <div class="bg-white p-6 rounded-lg shadow mb-6">
+          <div class="max-w-sm bg-white p-6 rounded-lg shadow mb-6">
             {%- assign date_format = "%Y-%m-%d" -%}
             <h3 class="font-bold text-xl">
               <a href="{{ post.url | relative_url }}">{{ post.title | escape }}</a>
