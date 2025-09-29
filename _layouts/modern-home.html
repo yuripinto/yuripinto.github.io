@@ -20,6 +20,11 @@ layout: modern-default
       {% for post in site.posts %}
         {%- if post.hidden != true -%}
           <div class="max-w-sm bg-white p-6 rounded-lg shadow mb-6">
+            {%- if post.image -%}
+              <figure class="mb-4">
+              <img src="{{ post.image | relative_url }}" alt="{{ post.title | escape }}" class="w-full h-24 object-cover object-center rounded-lg">
+              </figure>
+            {%- endif -%}
             {%- assign date_format = "%Y-%m-%d" -%}
             <h3 class="font-bold text-xl">
               <a href="{{ post.url | relative_url }}">{{ post.title | escape }}</a>

@@ -16,6 +16,12 @@ layout: modern-default
       {%- if page.author -%}
         • <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span class="p-author h-card" itemprop="name">{{ page.author }}</span></span>
       {%- endif -%}</p>
+
+    {%- if page.image -%}
+      <figure class="mb-4">
+        <img src="{{ page.image | relative_url }}" alt="{{ page.title | escape }}" class="w-full h-auto rounded-lg" itemprop="image">
+      </figure>
+    {%- endif -%}
   </header>
 
   <div class="md-content" itemprop="articleBody">
