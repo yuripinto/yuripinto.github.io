@@ -19,7 +19,10 @@ layout: modern-default
 
     {%- if page.image -%}
       <figure class="mb-4">
-        <img src="{{ page.image | relative_url }}" alt="{{ page.title | escape }}" class="w-full h-auto rounded-lg" itemprop="image">
+      <img src="{{ page.image | relative_url }}" alt="{{ page.title | escape }}" class="w-full h-auto rounded-lg" itemprop="image">
+      {%- if page.image_description -%}
+        <figcaption class="text-sm text-gray-600 mt-2">{{ page.image_description }}</figcaption>
+      {%- endif -%}
       </figure>
     {%- endif -%}
   </header>
