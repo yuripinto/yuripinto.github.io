@@ -4,6 +4,7 @@ title: "15 reflexões sobre 15 anos de TI"
 date: 2026-03-09
 permalink: "15-reflexoes-sobre-15-anos-de-ti"
 image: /assets/covers/quinze-anos-de-ti.jpeg
+image_description: "Meu primeiro emprego, em 2010, quando fui contratado para ser jovem aprendiz na Nokia, no Rio de Janeiro"
 tags: [carreira]
 ---
 
