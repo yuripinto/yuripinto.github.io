@@ -178,9 +178,9 @@ permalink: /apps/
     try {
       if (!libsReady) {
         loadMsg.textContent = 'Carregando TensorFlow.js…';
-        await loadScript('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js');
+        await loadScript('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.21.0/dist/tf.min.js');
         loadMsg.textContent = 'Carregando modelo de mãos…';
-        await loadScript('https://cdn.jsdelivr.net/npm/@tensorflow-models/hand-pose-detection/dist/hand-pose-detection.min.js');
+        await loadScript('https://cdn.jsdelivr.net/npm/@tensorflow-models/handpose@0.1.0/dist/handpose.js');
         libsReady = true;
       }
       loadMsg.textContent = 'Iniciando câmera…';
@@ -234,36 +234,39 @@ permalink: /apps/
   }
 
   async function setupDetector() {
-    // Use WebGL backend (GPU) — works on iOS Safari unlike WASM threading
+    // WebGL backend — GPU-based, works on iOS Safari (no WASM threading required)
     try { await tf.setBackend('webgl'); } catch(e) { await tf.setBackend('cpu'); } // eslint-disable-line no-undef
     await tf.ready(); // eslint-disable-line no-undef
-    detector = await handPoseDetection.createDetector( // eslint-disable-line no-undef
-      handPoseDetection.SupportedModels.MediaPipeHands, // eslint-disable-line no-undef
-      { runtime: 'tfjs', modelType: 'lite', maxHands: 2 }
-    );
-    // Warm up: run one inference so first game frame isn't slow
+    detector = await handpose.load({ // eslint-disable-line no-undef
+      maxContinuousChecks: 5,
+      detectionConfidence: 0.7,
+      iouThreshold: 0.3,
+      scoreThreshold: 0.6
+    });
+    // Warm up: one inference so the first game frame isn't sluggish
     if (video.readyState >= 2) {
       try { await detector.estimateHands(video); } catch(e) {}
     }
   }
 
-  // Self-pacing hand loop – awaits each frame so inference never queues up
+  // Self-pacing hand loop — awaits each frame so inference never queues up
   async function kickHandLoop() {
     handLoopOn = true;
     while (handLoopOn) {
       if (detector && video.readyState >= 2) {
         try {
-          const hands = await detector.estimateHands(video, { flipHorizontal: false });
+          const hands = await detector.estimateHands(video);
           palms = [];
           const vw = video.videoWidth  || 640;
           const vh = video.videoHeight || 480;
           for (const hand of hands) {
-            const kps = hand.keypoints;
-            const pi = [0, 5, 9, 13, 17];
+            // handpose returns landmarks as [[x,y,z], ...] in image pixel coords
+            const lms = hand.landmarks;
+            const pi  = [0, 5, 9, 13, 17];
             let sx = 0, sy = 0;
-            pi.forEach(i => { sx += kps[i].x; sy += kps[i].y; });
-            // Mirror X to match mirrored video
-            palms.push({ x: (1 - (sx / 5) / vw) * W, y: ((sy / 5) / vh) * H, kps });
+            pi.forEach(i => { sx += lms[i][0]; sy += lms[i][1]; });
+            // Mirror X to match the mirrored video draw
+            palms.push({ x: (1 - (sx / 5) / vw) * W, y: ((sy / 5) / vh) * H, lms });
           }
         } catch(e) { await ms(80); }
       } else {
@@ -329,14 +332,14 @@ permalink: /apps/
     constructor() {
       this.x  = 45 + Math.random() * (W - 90);
       this.y  = -35;
-      this.r  = 23 + Math.random() * 9;
-      this.vy = 2.4 + level * 0.42 + Math.random() * 0.9;
+      this.r  = 30 + Math.random() * 12;
+      this.vy = 2.0 + level * 0.35 + Math.random() * 0.8;
     }
     update() { this.y += this.vy; }
     gone()   { return this.y > H + 40; }
     hit(px, py) {
       const dx = this.x - px, dy = this.y - py;
-      return dx * dx + dy * dy < (this.r + 55) * (this.r + 55);
+      return dx * dx + dy * dy < (this.r + 75) * (this.r + 75);
     }
     draw() {
       ctx.save();
@@ -403,7 +406,7 @@ permalink: /apps/
 
     // Hand skeleton + catch zone
     for (const p of palms) {
-      if (p.kps) drawHand(p.kps);
+      if (p.lms) drawHand(p.lms);
       ctx.save();
       ctx.beginPath();
       ctx.arc(p.x, p.y, 55, 0, Math.PI * 2);
@@ -486,8 +489,8 @@ permalink: /apps/
   ];
   const TIPS = new Set([4, 8, 12, 16, 20]);
 
-  function drawHand(kps) {
-    // TF.js keypoints are in image pixels; scale to canvas and mirror X
+  function drawHand(lms) {
+    // handpose landmarks: [[x,y,z], ...] in image pixels; scale to canvas and mirror X
     const vw = video.videoWidth  || 640;
     const vh = video.videoHeight || 480;
     ctx.save();
@@ -495,13 +498,13 @@ permalink: /apps/
     ctx.lineWidth = 1.5;
     for (const [a, b] of CONN) {
       ctx.beginPath();
-      ctx.moveTo((1 - kps[a].x / vw) * W, (kps[a].y / vh) * H);
-      ctx.lineTo((1 - kps[b].x / vw) * W, (kps[b].y / vh) * H);
+      ctx.moveTo((1 - lms[a][0] / vw) * W, (lms[a][1] / vh) * H);
+      ctx.lineTo((1 - lms[b][0] / vw) * W, (lms[b][1] / vh) * H);
       ctx.stroke();
     }
-    for (let i = 0; i < kps.length; i++) {
-      const x = (1 - kps[i].x / vw) * W;
-      const y = (kps[i].y / vh) * H;
+    for (let i = 0; i < lms.length; i++) {
+      const x = (1 - lms[i][0] / vw) * W;
+      const y = (lms[i][1] / vh) * H;
       ctx.beginPath();
       ctx.arc(x, y, TIPS.has(i) ? 6 : 3, 0, Math.PI * 2);
       ctx.fillStyle = TIPS.has(i) ? '#a7f3d0' : 'rgba(167,243,208,.8)';
