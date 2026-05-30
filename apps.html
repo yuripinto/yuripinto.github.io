@@ -1,0 +1,510 @@
+---
+layout: modern-default
+title: Apps
+permalink: /apps/
+---
+
+<style>
+@keyframes floatUp {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(-70px) scale(1.2); }
+}
+@keyframes prizeAnim {
+  0%   { opacity: 0; transform: translateX(-50%) scale(.4); }
+  15%  { opacity: 1; transform: translateX(-50%) scale(1.15); }
+  35%  { transform: translateX(-50%) scale(1); }
+  70%  { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-50%) scale(.9); }
+}
+</style>
+
+<!-- Hub -->
+<div class="px-6 py-8">
+  <h1 class="text-2xl font-bold mb-1">Apps</h1>
+  <p class="text-gray-500 text-sm mb-6">Mini apps que rodam direto no navegador.</p>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+    <div class="bg-white rounded-xl shadow p-6 border border-gray-100">
+      <div class="text-4xl mb-3">🎯</div>
+      <h2 class="text-lg font-bold mb-1">Pega Bola</h2>
+      <p class="text-gray-500 text-sm mb-3">Use suas mãos para pegar bolas vermelhas que caem. Powered by IA. Precisa de câmera.</p>
+      <div class="flex flex-wrap gap-2 text-xs text-gray-400 mb-4">
+        <span class="bg-gray-100 px-2 py-1 rounded">📷 câmera</span>
+        <span class="bg-gray-100 px-2 py-1 rounded">📱 mobile</span>
+        <span class="bg-gray-100 px-2 py-1 rounded">🤖 IA</span>
+      </div>
+      <button id="btn-open-pega-bola"
+        class="w-full bg-red-500 hover:bg-red-600 active:bg-red-700 text-white font-bold py-3 rounded-lg transition-colors cursor-pointer">
+        Jogar
+      </button>
+    </div>
+
+    <div class="bg-white rounded-xl border border-dashed border-gray-200 p-6 flex flex-col items-center justify-center text-center opacity-50">
+      <div class="text-3xl mb-2">✨</div>
+      <p class="text-sm text-gray-400">Mais apps em breve</p>
+    </div>
+
+  </div>
+</div>
+
+{%- include modern-links.html -%}
+
+<div class="px-6 pb-8">
+  <div class="flex justify-center">
+    <a href="/" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-lg text-sm">Voltar para home</a>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     GAME OVERLAY
+═══════════════════════════════════ -->
+<div id="go" style="display:none;position:fixed;inset:0;background:#000;z-index:9999;overflow:hidden;">
+
+  <video id="gv" playsinline autoplay muted style="display:none;"></video>
+  <canvas id="gc" style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
+
+  <!-- HUD -->
+  <div id="gh" style="display:none;position:absolute;inset:0;pointer-events:none;">
+    <div style="display:flex;justify-content:space-between;padding:14px 16px;">
+      <div>
+        <div id="gt" style="font:bold 32px/1 system-ui,sans-serif;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.8);">60</div>
+        <div id="gm" style="font:13px system-ui,sans-serif;color:#fbbf24;text-shadow:0 1px 4px rgba(0,0,0,.8);min-height:18px;"></div>
+      </div>
+      <div style="text-align:right;">
+        <div id="gs" style="font:bold 32px/1 system-ui,sans-serif;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.8);">0</div>
+        <div id="gk" style="font:13px system-ui,sans-serif;color:#a7f3d0;text-shadow:0 1px 4px rgba(0,0,0,.8);"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Close -->
+  <button id="gbtn-close" style="position:absolute;top:12px;left:50%;transform:translateX(-50%);width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.15);backdrop-filter:blur(4px);border:none;color:#fff;font-size:20px;cursor:pointer;z-index:10;">✕</button>
+
+  <!-- Screen: Loading -->
+  <div id="gsl" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:24px;">
+    <div style="font-size:56px;margin-bottom:16px;">🤚</div>
+    <div style="font:bold 22px system-ui,sans-serif;margin-bottom:8px;">Carregando…</div>
+    <div id="glm" style="font:14px system-ui,sans-serif;color:rgba(255,255,255,.65);margin-top:6px;"></div>
+  </div>
+
+  <!-- Screen: Instructions -->
+  <div id="gsi" style="position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:24px;">
+    <div style="font-size:56px;margin-bottom:12px;">🎮</div>
+    <h2 style="font:bold 26px system-ui,sans-serif;margin:0 0 12px;">Pega Bola</h2>
+    <p style="font:15px system-ui,sans-serif;color:rgba(255,255,255,.85);max-width:280px;margin:0 0 8px;">Bolas vermelhas vão cair do topo.</p>
+    <p style="font:15px system-ui,sans-serif;color:rgba(255,255,255,.85);max-width:280px;margin:0 0 8px;">Use suas <strong>mãos</strong> para pegá-las antes que caiam!</p>
+    <p style="font:15px system-ui,sans-serif;color:rgba(255,255,255,.85);max-width:280px;margin:0 0 28px;">Você tem <strong>60 segundos</strong>. Boa sorte! 🍀</p>
+    <button id="gbtn-start" style="background:#ef4444;border:none;color:#fff;font:bold 18px system-ui,sans-serif;padding:16px 44px;border-radius:14px;cursor:pointer;">Começar!</button>
+  </div>
+
+  <!-- Screen: Game Over -->
+  <div id="gsgo" style="position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:24px;">
+    <div style="font-size:64px;margin-bottom:8px;">🏆</div>
+    <h2 style="font:bold 26px system-ui,sans-serif;margin:0 0 8px;">Fim de Jogo!</h2>
+    <div id="ggscore"   style="font:bold 52px system-ui,sans-serif;color:#fbbf24;margin-bottom:4px;"></div>
+    <div id="ggcatches" style="font:16px system-ui,sans-serif;color:rgba(255,255,255,.65);margin-bottom:12px;"></div>
+    <div id="ggpraise"  style="font:20px system-ui,sans-serif;margin-bottom:28px;"></div>
+    <button id="gbtn-replay" style="background:#ef4444;border:none;color:#fff;font:bold 18px system-ui,sans-serif;padding:16px 44px;border-radius:14px;cursor:pointer;">Jogar de novo</button>
+  </div>
+
+  <!-- Popups -->
+  <div id="gpops" style="position:absolute;inset:0;pointer-events:none;overflow:hidden;"></div>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ── DOM ──────────────────────────────────────────────────────────────
+  const overlay  = document.getElementById('go');
+  const video    = document.getElementById('gv');
+  const canvas   = document.getElementById('gc');
+  const ctx      = canvas.getContext('2d');
+  const screenL  = document.getElementById('gsl');
+  const screenI  = document.getElementById('gsi');
+  const screenGO = document.getElementById('gsgo');
+  const hud      = document.getElementById('gh');
+  const loadMsg  = document.getElementById('glm');
+  const hudTimer = document.getElementById('gt');
+  const hudScore = document.getElementById('gs');
+  const hudCatch = document.getElementById('gk');
+  const hudMult  = document.getElementById('gm');
+  const goScore  = document.getElementById('ggscore');
+  const goCatch  = document.getElementById('ggcatches');
+  const goPraise = document.getElementById('ggpraise');
+  const popsEl   = document.getElementById('gpops');
+
+  // ── State ────────────────────────────────────────────────────────────
+  let W = 0, H = 0;
+  let rafId = null, timerIv = null;
+  let handsObj = null, mediaReady = false, handLoopOn = false;
+  let gState = 'idle';
+
+  // Game vars
+  let score = 0, catches = 0, timeLeft = 60, level = 1;
+  let multiplier = 1, multF = 0;
+  let balls = [], parts = [], palms = [];
+  let lastSpawn = 0;
+
+  // ── Resize ───────────────────────────────────────────────────────────
+  function resize() {
+    W = canvas.clientWidth  || window.innerWidth;
+    H = canvas.clientHeight || window.innerHeight;
+    canvas.width  = W;
+    canvas.height = H;
+  }
+  window.addEventListener('resize', resize);
+  window.addEventListener('orientationchange', () => setTimeout(resize, 250));
+
+  // ── Screen helper ────────────────────────────────────────────────────
+  function show(name) {
+    screenL.style.display  = 'none';
+    screenI.style.display  = 'none';
+    screenGO.style.display = 'none';
+    hud.style.display      = 'none';
+    if      (name === 'loading')  screenL.style.display  = 'flex';
+    else if (name === 'instr')    screenI.style.display  = 'flex';
+    else if (name === 'gameover') screenGO.style.display = 'flex';
+    else if (name === 'hud')      hud.style.display      = 'block';
+  }
+
+  // ── Open ─────────────────────────────────────────────────────────────
+  document.getElementById('btn-open-pega-bola').addEventListener('click', async () => {
+    overlay.style.display = 'block';
+    resize();
+    show('loading');
+    gState = 'loading';
+    try {
+      if (!mediaReady) {
+        loadMsg.textContent = 'Carregando IA de mãos…';
+        await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js');
+        mediaReady = true;
+      }
+      loadMsg.textContent = 'Iniciando câmera…';
+      await startCamera();
+      loadMsg.textContent = 'Inicializando modelo de mãos…';
+      await setupHands();
+      show('instr');
+      gState = 'instructions';
+      kickHandLoop();
+    } catch (e) {
+      loadMsg.textContent = '⚠ ' + (e.message || 'Erro ao iniciar câmera ou IA.');
+    }
+  });
+
+  // ── Close ────────────────────────────────────────────────────────────
+  document.getElementById('gbtn-close').addEventListener('click', closeGame);
+
+  function closeGame() {
+    handLoopOn = false;
+    if (rafId)   { cancelAnimationFrame(rafId); rafId = null; }
+    if (timerIv) { clearInterval(timerIv); timerIv = null; }
+    if (video.srcObject) {
+      video.srcObject.getTracks().forEach(t => t.stop());
+      video.srcObject = null;
+    }
+    if (handsObj) { try { handsObj.close(); } catch(e) {} handsObj = null; }
+    overlay.style.display = 'none';
+    gState = 'idle';
+    balls = []; parts = []; palms = [];
+  }
+
+  // ── Helpers ──────────────────────────────────────────────────────────
+  function loadScript(src) {
+    return new Promise((res, rej) => {
+      if (document.querySelector('script[src="' + src + '"]')) { res(); return; }
+      const s = document.createElement('script');
+      s.src = src; s.crossOrigin = 'anonymous';
+      s.onload = res;
+      s.onerror = () => rej(new Error('Falha ao carregar: ' + src));
+      document.head.appendChild(s);
+    });
+  }
+
+  async function startCamera() {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }
+    });
+    video.srcObject = stream;
+    await new Promise(r => { video.onloadedmetadata = r; });
+    await video.play();
+  }
+
+  function setupHands() {
+    return new Promise(res => {
+      handsObj = new Hands({ // eslint-disable-line no-undef
+        locateFile: f => 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/' + f
+      });
+      handsObj.setOptions({
+        maxNumHands: 2,
+        modelComplexity: 1,
+        minDetectionConfidence: 0.7,
+        minTrackingConfidence: 0.5
+      });
+      handsObj.onResults(r => {
+        palms = [];
+        if (!r.multiHandLandmarks) return;
+        for (const lms of r.multiHandLandmarks) {
+          const pi = [0, 5, 9, 13, 17];
+          let sx = 0, sy = 0;
+          pi.forEach(i => { sx += lms[i].x; sy += lms[i].y; });
+          palms.push({ x: (1 - sx / 5) * W, y: (sy / 5) * H, lms });
+        }
+      });
+      if (typeof handsObj.initialize === 'function') {
+        handsObj.initialize().then(res).catch(res);
+      } else {
+        res();
+      }
+    });
+  }
+
+  // Self-pacing hand loop – awaits each frame so we never overflow the queue
+  async function kickHandLoop() {
+    handLoopOn = true;
+    while (handLoopOn) {
+      if (handsObj && video.readyState >= 2) {
+        try { await handsObj.send({ image: video }); }
+        catch(e) { await ms(80); }
+      } else {
+        await ms(40);
+      }
+    }
+  }
+  const ms = d => new Promise(r => setTimeout(r, d));
+
+  // ── Start / Replay ───────────────────────────────────────────────────
+  document.getElementById('gbtn-start').addEventListener('click', startPlay);
+  document.getElementById('gbtn-replay').addEventListener('click', startPlay);
+
+  function startPlay() {
+    score = 0; catches = 0; timeLeft = 60; level = 1;
+    multiplier = 1; multF = 0;
+    balls = []; parts = []; palms = [];
+    lastSpawn = performance.now();
+    updateHUD();
+    show('hud');
+    gState = 'playing';
+
+    if (timerIv) clearInterval(timerIv);
+    timerIv = setInterval(() => {
+      if (--timeLeft <= 0) endGame();
+      updateHUD();
+    }, 1000);
+
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function endGame() {
+    gState = 'gameover';
+    if (timerIv) { clearInterval(timerIv); timerIv = null; }
+    if (rafId)   { cancelAnimationFrame(rafId); rafId = null; }
+    show('gameover');
+    goScore.textContent = score + ' pts';
+    goCatch.textContent = catches + ' bolas pegas';
+    const tiers = [
+      [0,  'Tente de novo! 💪'],
+      [3,  'Bom começo! 🙂'],
+      [8,  'Tá pegando o jeito! 🎯'],
+      [15, 'Você é rápido! ⚡'],
+      [25, 'Mestre do Pega Bola! 🏆']
+    ];
+    let praise = tiers[0][1];
+    tiers.forEach(([n, msg]) => { if (catches >= n) praise = msg; });
+    goPraise.textContent = praise;
+  }
+
+  function updateHUD() {
+    hudTimer.textContent = timeLeft;
+    hudScore.textContent = score;
+    hudCatch.textContent = catches + ' pegas';
+    hudMult.textContent  = multiplier > 1
+      ? 'x' + multiplier + ' por ' + Math.ceil(multF / 60) + 's'
+      : '';
+  }
+
+  // ── Ball ─────────────────────────────────────────────────────────────
+  class Ball {
+    constructor() {
+      this.x  = 45 + Math.random() * (W - 90);
+      this.y  = -35;
+      this.r  = 23 + Math.random() * 9;
+      this.vy = 2.4 + level * 0.42 + Math.random() * 0.9;
+    }
+    update() { this.y += this.vy; }
+    gone()   { return this.y > H + 40; }
+    hit(px, py) {
+      const dx = this.x - px, dy = this.y - py;
+      return dx * dx + dy * dy < (this.r + 55) * (this.r + 55);
+    }
+    draw() {
+      ctx.save();
+      const g = ctx.createRadialGradient(
+        this.x - this.r * .3, this.y - this.r * .35, 1,
+        this.x, this.y, this.r
+      );
+      g.addColorStop(0,   '#ff8080');
+      g.addColorStop(.55, '#ef4444');
+      g.addColorStop(1,   '#991b1b');
+      ctx.shadowColor = 'rgba(239,68,68,.7)';
+      ctx.shadowBlur  = 24;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fillStyle = g;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    }
+  }
+
+  // ── Particle ─────────────────────────────────────────────────────────
+  class Pt {
+    constructor(x, y) {
+      this.x = x; this.y = y;
+      const a = Math.random() * Math.PI * 2, s = 2 + Math.random() * 6;
+      this.vx = Math.cos(a) * s;
+      this.vy = Math.sin(a) * s - 1.5;
+      this.life = 1;
+      this.r = 3 + Math.random() * 5;
+      const cols = ['#fbbf24','#f97316','#ef4444','#ec4899','#a78bfa','#34d399'];
+      this.c = cols[Math.floor(Math.random() * cols.length)];
+    }
+    update() {
+      this.x += this.vx; this.y += this.vy;
+      this.vy += .2; this.life -= .028;
+    }
+    draw() {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, this.life);
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fillStyle = this.c;
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  // ── Main game loop ───────────────────────────────────────────────────
+  function loop(ts) {
+    if (gState !== 'playing') return;
+    ctx.clearRect(0, 0, W, H);
+
+    // Mirrored video feed
+    ctx.save();
+    ctx.scale(-1, 1);
+    ctx.translate(-W, 0);
+    if (video.readyState >= 2) ctx.drawImage(video, 0, 0, W, H);
+    ctx.restore();
+
+    // Dark tint for readability
+    ctx.fillStyle = 'rgba(0,0,0,.28)';
+    ctx.fillRect(0, 0, W, H);
+
+    // Hand skeleton + catch zone
+    for (const p of palms) {
+      if (p.lms) drawHand(p.lms);
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 55, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(167,243,208,.45)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Spawn balls
+    const gap = Math.max(750, 2300 - level * 130);
+    if (ts - lastSpawn > gap) { balls.push(new Ball()); lastSpawn = ts; }
+
+    // Multiplier countdown
+    if (multF > 0 && --multF === 0) { multiplier = 1; updateHUD(); }
+
+    // Update balls
+    for (let i = balls.length - 1; i >= 0; i--) {
+      const b = balls[i];
+      b.update();
+      let hit = false;
+      for (const p of palms) { if (b.hit(p.x, p.y)) { hit = true; break; } }
+      if      (hit)     { onCatch(b); balls.splice(i, 1); }
+      else if (b.gone()) balls.splice(i, 1);
+      else               b.draw();
+    }
+
+    // Update particles
+    for (let i = parts.length - 1; i >= 0; i--) {
+      parts[i].update();
+      if (parts[i].life <= 0) parts.splice(i, 1);
+      else parts[i].draw();
+    }
+
+    rafId = requestAnimationFrame(loop);
+  }
+
+  // ── Catch handler ────────────────────────────────────────────────────
+  function onCatch(b) {
+    catches++;
+    const pts = 10 * multiplier;
+    score += pts;
+    level = 1 + Math.floor(catches / 10);
+
+    for (let i = 0; i < 18; i++) parts.push(new Pt(b.x, b.y));
+    popup('+' + pts, b.x, b.y - 20, '#fbbf24', '22px', 'floatUp .9s ease-out forwards');
+
+    if (catches % 20 === 0)      { multiplier = 3; multF = 600; prize('🔥 MASTER! x3 por 10s!'); }
+    else if (catches % 10 === 0) { multiplier = 2; multF = 600; prize('⚡ x2 por 10s!'); }
+    else if (catches % 5 === 0) {
+      const msgs = ['Boa! 🎯', 'Isso! 💪', 'Show! ⭐', 'Vai! 🚀'];
+      prize(msgs[Math.floor(Math.random() * msgs.length)]);
+    }
+    updateHUD();
+  }
+
+  function popup(text, x, y, color, sz, anim) {
+    const el = document.createElement('div');
+    el.textContent = text;
+    const px = Math.max(10, Math.min(W - 80, x - 24));
+    const py = Math.max(60, y);
+    el.style.cssText = 'position:absolute;left:' + px + 'px;top:' + py + 'px;color:' + color + ';font:bold ' + sz + ' system-ui,sans-serif;text-shadow:0 2px 8px rgba(0,0,0,.8);pointer-events:none;animation:' + anim + ';';
+    popsEl.appendChild(el);
+    setTimeout(() => el.remove(), 1000);
+  }
+
+  function prize(text) {
+    const el = document.createElement('div');
+    el.textContent = text;
+    el.style.cssText = 'position:absolute;left:50%;top:36%;transform:translateX(-50%);color:#fbbf24;font:bold clamp(20px,5vw,30px) system-ui,sans-serif;text-shadow:0 2px 14px rgba(0,0,0,.9);pointer-events:none;white-space:nowrap;animation:prizeAnim 2s ease-out forwards;';
+    popsEl.appendChild(el);
+    setTimeout(() => el.remove(), 2100);
+  }
+
+  // ── Hand skeleton renderer ───────────────────────────────────────────
+  const CONN = [
+    [0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],
+    [9,10],[10,11],[11,12],[13,14],[14,15],[15,16],
+    [0,17],[17,18],[18,19],[19,20],[5,9],[9,13],[13,17]
+  ];
+  const TIPS = new Set([4, 8, 12, 16, 20]);
+
+  function drawHand(lms) {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(167,243,208,.65)';
+    ctx.lineWidth = 1.5;
+    for (const [a, b] of CONN) {
+      ctx.beginPath();
+      ctx.moveTo((1 - lms[a].x) * W, lms[a].y * H);
+      ctx.lineTo((1 - lms[b].x) * W, lms[b].y * H);
+      ctx.stroke();
+    }
+    for (let i = 0; i < lms.length; i++) {
+      const x = (1 - lms[i].x) * W, y = lms[i].y * H;
+      ctx.beginPath();
+      ctx.arc(x, y, TIPS.has(i) ? 6 : 3, 0, Math.PI * 2);
+      ctx.fillStyle = TIPS.has(i) ? '#a7f3d0' : 'rgba(167,243,208,.8)';
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+})();
+</script>
