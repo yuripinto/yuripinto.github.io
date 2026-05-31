@@ -138,7 +138,7 @@ permalink: /apps/
   // ── State ────────────────────────────────────────────────────────────
   let W = 0, H = 0;
   let rafId = null, timerIv = null;
-  let detector = null, libsReady = false, handLoopOn = false;
+  let detector = null, handLoopOn = false;
   let gState = 'idle';
 
   // Game vars
@@ -176,22 +176,37 @@ permalink: /apps/
     show('loading');
     gState = 'loading';
     try {
-      if (!libsReady) {
-        loadMsg.textContent = 'Carregando TensorFlow.js…';
-        await loadScript('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.21.0/dist/tf.min.js');
-        loadMsg.textContent = 'Carregando modelo de mãos…';
-        await loadScript('https://cdn.jsdelivr.net/npm/@tensorflow-models/handpose@0.1.0/dist/handpose.js');
-        libsReady = true;
+      if (!detector) {
+        loadMsg.textContent = 'Carregando biblioteca de visão…';
+        // Dynamic import — works in iOS Safari 15+, no SharedArrayBuffer needed
+        const { HandLandmarker, FilesetResolver } = await import(
+          'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/vision_bundle.mjs'
+        );
+        loadMsg.textContent = 'Baixando modelo de mãos…';
+        const fs = await FilesetResolver.forVisionTasks(
+          'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm'
+        );
+        detector = await withTimeout(
+          HandLandmarker.createFromOptions(fs, {
+            baseOptions: {
+              modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
+              delegate: 'GPU'
+            },
+            runningMode: 'VIDEO',
+            numHands: 2
+          }),
+          40000,
+          'Timeout ao carregar modelo. Verifique sua conexão e tente novamente.'
+        );
       }
       loadMsg.textContent = 'Iniciando câmera…';
       await startCamera();
-      loadMsg.textContent = 'Configurando detecção de mãos…';
-      await setupDetector();
       show('instr');
       gState = 'instructions';
       kickHandLoop();
     } catch (e) {
       loadMsg.textContent = '⚠ ' + (e.message || 'Erro ao iniciar câmera ou IA.');
+      detector = null;
     }
   });
 
@@ -206,22 +221,18 @@ permalink: /apps/
       video.srcObject.getTracks().forEach(t => t.stop());
       video.srcObject = null;
     }
-    if (detector) { try { detector.dispose(); } catch(e) {} detector = null; }
+    // Keep detector alive — avoids re-downloading model on next open
     overlay.style.display = 'none';
     gState = 'idle';
     balls = []; parts = []; palms = [];
   }
 
   // ── Helpers ──────────────────────────────────────────────────────────
-  function loadScript(src) {
-    return new Promise((res, rej) => {
-      if (document.querySelector('script[src="' + src + '"]')) { res(); return; }
-      const s = document.createElement('script');
-      s.src = src; s.crossOrigin = 'anonymous';
-      s.onload = res;
-      s.onerror = () => rej(new Error('Falha ao carregar: ' + src));
-      document.head.appendChild(s);
-    });
+  function withTimeout(promise, delay, msg) {
+    return Promise.race([
+      promise,
+      new Promise((_, rej) => setTimeout(() => rej(new Error(msg)), delay))
+    ]);
   }
 
   async function startCamera() {
@@ -233,42 +244,29 @@ permalink: /apps/
     await video.play();
   }
 
-  async function setupDetector() {
-    // WebGL backend — GPU-based, works on iOS Safari (no WASM threading required)
-    try { await tf.setBackend('webgl'); } catch(e) { await tf.setBackend('cpu'); } // eslint-disable-line no-undef
-    await tf.ready(); // eslint-disable-line no-undef
-    detector = await handpose.load({ // eslint-disable-line no-undef
-      maxContinuousChecks: 5,
-      detectionConfidence: 0.7,
-      iouThreshold: 0.3,
-      scoreThreshold: 0.6
-    });
-    // Warm up: one inference so the first game frame isn't sluggish
-    if (video.readyState >= 2) {
-      try { await detector.estimateHands(video); } catch(e) {}
-    }
-  }
-
-  // Self-pacing hand loop — awaits each frame so inference never queues up
+  // Self-pacing hand loop — synchronous detectForVideo never queues
   async function kickHandLoop() {
     handLoopOn = true;
+    let lastTs = -1;
     while (handLoopOn) {
       if (detector && video.readyState >= 2) {
-        try {
-          const hands = await detector.estimateHands(video);
-          palms = [];
-          const vw = video.videoWidth  || 640;
-          const vh = video.videoHeight || 480;
-          for (const hand of hands) {
-            // handpose returns landmarks as [[x,y,z], ...] in image pixel coords
-            const lms = hand.landmarks;
-            const pi  = [0, 5, 9, 13, 17];
-            let sx = 0, sy = 0;
-            pi.forEach(i => { sx += lms[i][0]; sy += lms[i][1]; });
-            // Mirror X to match the mirrored video draw
-            palms.push({ x: (1 - (sx / 5) / vw) * W, y: ((sy / 5) / vh) * H, lms });
-          }
-        } catch(e) { await ms(80); }
+        const nowMs = performance.now();
+        if (nowMs > lastTs) {
+          try {
+            const results = detector.detectForVideo(video, nowMs);
+            lastTs = nowMs;
+            palms = [];
+            for (const lms of (results.landmarks || [])) {
+              // NormalizedLandmark: {x, y, z} normalized 0-1 in image coords
+              const pi = [0, 5, 9, 13, 17];
+              let sx = 0, sy = 0;
+              pi.forEach(i => { sx += lms[i].x; sy += lms[i].y; });
+              // Mirror X to match the flipped video draw
+              palms.push({ x: (1 - sx / 5) * W, y: (sy / 5) * H, lms });
+            }
+          } catch(e) { /* ignore per-frame errors */ }
+        }
+        await ms(30);
       } else {
         await ms(40);
       }
@@ -490,21 +488,19 @@ permalink: /apps/
   const TIPS = new Set([4, 8, 12, 16, 20]);
 
   function drawHand(lms) {
-    // handpose landmarks: [[x,y,z], ...] in image pixels; scale to canvas and mirror X
-    const vw = video.videoWidth  || 640;
-    const vh = video.videoHeight || 480;
+    // MediaPipe Tasks Vision: {x, y, z} normalized 0-1; mirror X for display
     ctx.save();
     ctx.strokeStyle = 'rgba(167,243,208,.65)';
     ctx.lineWidth = 1.5;
     for (const [a, b] of CONN) {
       ctx.beginPath();
-      ctx.moveTo((1 - lms[a][0] / vw) * W, (lms[a][1] / vh) * H);
-      ctx.lineTo((1 - lms[b][0] / vw) * W, (lms[b][1] / vh) * H);
+      ctx.moveTo((1 - lms[a].x) * W, lms[a].y * H);
+      ctx.lineTo((1 - lms[b].x) * W, lms[b].y * H);
       ctx.stroke();
     }
     for (let i = 0; i < lms.length; i++) {
-      const x = (1 - lms[i][0] / vw) * W;
-      const y = (lms[i][1] / vh) * H;
+      const x = (1 - lms[i].x) * W;
+      const y = lms[i].y * H;
       ctx.beginPath();
       ctx.arc(x, y, TIPS.has(i) ? 6 : 3, 0, Math.PI * 2);
       ctx.fillStyle = TIPS.has(i) ? '#a7f3d0' : 'rgba(167,243,208,.8)';
