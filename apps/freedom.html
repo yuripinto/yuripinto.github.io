@@ -519,6 +519,10 @@ permalink: /apps/freedom/
     var d = BASE[t];
     if (!d) { elDetalhe.innerHTML = '<p class="carregando">Ação não encontrada.</p>'; return; }
 
+    // banco e seguradora não têm dívida: o que importa neles é o ativo total e
+    // a alavancagem (ativo/PL). As três colunas de dívida dão lugar a essas duas.
+    var eBanco = d.perfil && d.perfil !== 'operacional';
+
     var corpo = d.linhas.map(function (l) {
       var cx = l.caixa_liquido;
       var celulaCx = cx === null ? '<td class="vazio">&mdash;</td>'
@@ -531,13 +535,18 @@ permalink: /apps/freedom/
         : '<td class="' + (l.margem < 0 ? 'negativo' : '') + '">' + pct(l.margem) + '</td>';
       var celulaRoe = l.roe === null ? '<td class="vazio">&mdash;</td>'
         : '<td class="' + (l.roe < 0 ? 'negativo' : '') + '">' + pct(l.roe) + '</td>';
+      var finais = eBanco
+        ? '<td>' + moeda(l.ativo) + '</td>' +
+          '<td>' + (l.alavancagem ? num(l.alavancagem, 1) + 'x'
+                                  : '<span class="vazio">&mdash;</span>') + '</td>'
+        : celulaCx + celulaDiv + celulaDivPl;
       return '<tr><td class="ano">' + l.ano + '</td>' +
         '<td class="c-patrimonio">' + moeda(l.patrimonio) + '</td>' +
         '<td class="c-receita">' + moeda(l.receita) + '</td>' +
         '<td class="c-lucro">' + moeda(l.lucro) + '</td>' +
         celulaMargem + celulaRoe +
         '<td class="c-caixa">' + moeda(l.caixa) + '</td>' +
-        celulaCx + celulaDiv + celulaDivPl + '</tr>';
+        finais + '</tr>';
     }).join('');
 
     var indicadores = '';
@@ -576,7 +585,9 @@ permalink: /apps/freedom/
       indicadores +
       '<div class="painel"><h3>Histórico anual (R$ milhões)</h3><div class="rolagem">' +
       '<table><thead><tr><th>ANO</th><th>Patrimônio</th><th>Receita</th><th>Lucro</th>' +
-      '<th>Margem</th><th>ROE</th><th>Caixa</th><th>CX Líq</th><th>Dívida</th><th>Dív/PL</th>' +
+      '<th>Margem</th><th>ROE</th><th>Caixa</th>' +
+      (eBanco ? '<th>Ativo</th><th>Alavanc.</th>'
+              : '<th>CX Líq</th><th>Dívida</th><th>Dív/PL</th>') +
       '</tr></thead><tbody>' + corpo + '</tbody></table></div></div>' +
       '<div class="painel"><h3>Evolução</h3>' + grafico(d.linhas) + '</div>' +
       '<div class="painel"><h3>Checklist</h3><div class="sinais">' + sinais + '</div>' + notas + '</div>' +
