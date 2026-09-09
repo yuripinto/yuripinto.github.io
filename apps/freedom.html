@@ -6,6 +6,9 @@ permalink: /apps/freedom/
 {% raw %}
 <style>
 #fr { --tinta:#1c2430; --fraco:#7b8794; --borda:#dde3ea; }
+/* o layout do site limita o corpo em max-w-4xl (896px). Nesta página cabe
+   mais: com 1180px entram três empresas por linha no desktop. */
+@media (min-width: 1000px) { body { max-width: 1180px !important; } }
 #fr a { text-decoration: none; color: inherit; }
 #fr .busca, #fr select {
   width: 100%; padding: 10px 12px; font-size: 15px; font-family: inherit;
@@ -16,7 +19,8 @@ permalink: /apps/freedom/
 @media (min-width: 640px) { #fr .filtros { grid-template-columns: 1fr 1fr 1fr; } }
 #fr .contador { color: var(--fraco); font-size: 13px; margin: 12px 0; }
 #fr .lista { display: grid; gap: 10px; grid-template-columns: 1fr; }
-@media (min-width: 700px) { #fr .lista { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 700px)  { #fr .lista { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1000px) { #fr .lista { grid-template-columns: 1fr 1fr 1fr; } }
 #fr .cartao {
   display: flex; align-items: center; gap: 12px; background: #fff;
   border: 1px solid var(--borda); border-radius: 10px; padding: 12px 14px;
@@ -105,6 +109,30 @@ permalink: /apps/freedom/
 #fr .nota { background:#f7f9fc; border:1px solid #e3e8ee; border-left:3px solid #9fb3c8;
             border-radius:6px; padding:9px 11px; margin-top:10px; font-size:12.5px; color:#4a5568; }
 #fr .fonte { margin-top:16px; font-size:12px; color:var(--fraco); line-height:1.6; }
+
+#fr .sobre p { margin:0 0 10px; font-size:14px; line-height:1.55; }
+#fr .fatos { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+#fr .fato { border:1px solid var(--borda); border-radius:8px; padding:6px 10px; font-size:12.5px; }
+#fr .fato b { color:var(--fraco); font-weight:600; }
+#fr .fato.destaque { background:#eef4fb; border-color:#c9dcf0; }
+#fr .sublista { margin:0; padding:0; list-style:none; font-size:13px; }
+#fr .sublista li { padding:4px 0; border-bottom:1px solid #f0f3f7; }
+#fr .sublista li:last-child { border-bottom:0; }
+#fr .sublista .quanto { color:var(--fraco); font-size:12px; }
+#fr .subtitulo-bloco { font-size:12px; text-transform:uppercase; letter-spacing:.6px;
+                       color:var(--fraco); font-weight:700; margin:12px 0 6px; }
+
+#fr .div-linha { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+#fr .div-selo { font-size:11px; font-weight:700; text-transform:uppercase;
+                letter-spacing:.3px; padding:4px 10px; border-radius:20px; }
+#fr .div-selo.bom { background:#e6f4ec; color:#1e5c3a; border:1px solid #b7ddc7; }
+#fr .div-selo.regular { background:#fdf4e3; color:#7a5a12; border:1px solid #eed9a8; }
+#fr .div-selo.fraco { background:#fbeaea; color:#8c2b2b; border:1px solid #eec2c2; }
+#fr .div-selo.sem { background:#f2f4f7; color:#5b6672; border:1px solid #dde3ea; }
+#fr .div-texto { font-size:13.5px; color:#4a5568; }
+#fr .pago { font-size:10px; font-weight:700; letter-spacing:.3px; color:#1e5c3a;
+            background:#e6f4ec; border:1px solid #b7ddc7; border-radius:20px;
+            padding:2px 7px; }
 #fr .carregando { color: var(--fraco); padding: 30px 0; text-align:center; }
 </style>
 
@@ -164,8 +192,10 @@ permalink: /apps/freedom/
     var posicao = d.posicao
       ? '<span class="posicao" title="posição no ranking das boas">#' +
         d.posicao + '</span>' : '';
+    var paga = (d.dividendos && d.dividendos.situacao === 'bom')
+      ? '<span class="pago" title="boa pagadora de dividendos">DIVIDENDOS</span>' : '';
     return '<span class="selos"><span class="badge ' + d.veredito + '">' +
-      ROTULO[d.veredito] + '</span>' + posicao + '</span>';
+      ROTULO[d.veredito] + '</span>' + posicao + paga + '</span>';
   }
 
   function marca(t, d, grande) {
@@ -318,6 +348,88 @@ permalink: /apps/freedom/
         ? ' · ' + comPosicao + ' no ranking, em ordem' : '');
   }
 
+  function blocoDividendos(d) {
+    var dv = d.dividendos;
+    if (!dv) { return ''; }
+    var classe = dv.situacao === 'bom' ? 'bom'
+      : dv.situacao === 'regular' ? 'regular'
+      : dv.situacao === 'fraco' ? 'fraco' : 'sem';
+    var payout = (dv.payout === null || dv.payout === undefined) ? ''
+      : '<span class="fato"><b>payout médio</b> ' + num(dv.payout, 0) + '%</span>';
+    var anos = dv.anos
+      ? '<span class="fato"><b>pagou em</b> ' + dv.anos_pagando + ' de ' +
+        dv.anos + ' anos</span>' : '';
+    return '<div class="painel"><h3>Dividendos</h3>' +
+      '<div class="div-linha"><span class="div-selo ' + classe + '">' +
+      esc(dv.titulo) + '</span>' + payout + anos + '</div>' +
+      '<p class="div-texto" style="margin:10px 0 0">' + esc(dv.detalhe) + '</p></div>';
+  }
+
+  function blocoSobre(d) {
+    var s = d.sobre;
+    if (!s) { return ''; }
+    var fatos = [];
+    if (s.rotulo_controle) {
+      fatos.push('<span class="fato destaque"><b>controle</b> ' +
+                 esc(s.rotulo_controle) + '</span>');
+    }
+    if (s.fundacao) {
+      fatos.push('<span class="fato"><b>fundada em</b> ' +
+                 esc(s.fundacao.slice(0, 4)) + '</span>');
+    }
+    if (s.pais && s.pais !== 'Brasil') {
+      fatos.push('<span class="fato"><b>origem</b> ' + esc(s.pais) + '</span>');
+    }
+    if (s.total_controladas) {
+      fatos.push('<span class="fato"><b>controladas</b> ' +
+                 s.total_controladas + '</span>');
+    }
+    if (s.nome_anterior) {
+      fatos.push('<span class="fato"><b>antes chamada</b> ' +
+                 esc(s.nome_anterior) + '</span>');
+    }
+
+    var chefes = '';
+    if (s.controladores && s.controladores.length) {
+      chefes = '<div class="subtitulo-bloco">Quem controla</div><ul class="sublista">' +
+        s.controladores.map(function (c) {
+          var extra = [];
+          if (c.pessoa) { extra.push('pessoa ' + c.pessoa); }
+          if (c.exterior) { extra.push('reside no exterior'); }
+          return '<li>' + esc(c.nome) + ' <span class="quanto">' +
+                 esc(extra.join(' · ')) + '</span></li>';
+        }).join('') + '</ul>' +
+        (s.total_controladores > s.controladores.length
+          ? '<p class="quanto" style="margin:6px 0 0">e mais ' +
+            (s.total_controladores - s.controladores.length) +
+            ' acionistas marcados como controladores.</p>' : '');
+    }
+
+    var filhas = '';
+    if (s.controladas && s.controladas.length) {
+      filhas = '<div class="subtitulo-bloco">Principais controladas e coligadas</div>' +
+        '<ul class="sublista">' + s.controladas.map(function (c) {
+          var partes = [];
+          if (c.tipo) { partes.push(c.tipo.toLowerCase()); }
+          if (c.fatia) { partes.push(num(c.fatia, 1) + '%'); }
+          if (c.pais && c.pais !== 'Brasil') { partes.push(c.pais); }
+          return '<li>' + esc(c.nome) + ' <span class="quanto">' +
+                 esc(partes.join(' · ')) + '</span></li>';
+        }).join('') + '</ul>' +
+        (s.total_controladas > s.controladas.length
+          ? '<p class="quanto" style="margin:6px 0 0">de ' + s.total_controladas +
+            ' participações declaradas.</p>' : '');
+    }
+
+    var site = s.site ? '<p class="quanto" style="margin:10px 0 0">' +
+      esc(s.site) + '</p>' : '';
+
+    return '<div class="painel sobre"><h3>Sobre a empresa</h3>' +
+      (s.descricao ? '<p>' + esc(s.descricao) + '</p>' : '') +
+      '<div class="fatos">' + fatos.join('') + '</div>' +
+      chefes + filhas + site + '</div>';
+  }
+
   // ---- detalhe
   function montarDetalhe(t) {
     var d = BASE[t];
@@ -375,6 +487,8 @@ permalink: /apps/freedom/
       esc(d.setor) + '</div>' + cotacao + '</div>' +
       selos(d) + '</div>' +
       '<div class="resumo ' + d.veredito + '">' + esc(d.resumo) + '</div>' +
+      blocoSobre(d) +
+      blocoDividendos(d) +
       indicadores +
       '<div class="painel"><h3>Histórico anual (R$ milhões)</h3><div class="rolagem">' +
       '<table><thead><tr><th>ANO</th><th>Patrimônio</th><th>Receita</th><th>Lucro</th>' +
