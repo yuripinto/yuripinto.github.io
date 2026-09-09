@@ -23,11 +23,19 @@ permalink: /apps/freedom/
   transition: border-color .15s, transform .15s; cursor: pointer;
 }
 #fr .cartao:hover { border-color: #9fb3c8; transform: translateY(-1px); }
+/* sem isto o filtro nao esconde nada: display:flex ganha do display:none
+   que o atributo hidden aplica por padrao */
+#fr .cartao[hidden] { display: none !important; }
 #fr .marca {
+  position: relative; overflow: hidden;
   flex: 0 0 auto; width: 42px; height: 42px; border-radius: 9px; color: #fff;
   display: flex; align-items: center; justify-content: center;
   font-weight: 700; font-size: 12px;
 }
+/* o logo cobre as iniciais; se o arquivo nao existir o onerror o remove
+   e as iniciais reaparecem */
+#fr .marca img { position: absolute; inset: 0; width: 100%; height: 100%;
+                 object-fit: cover; background: #fff; }
 #fr .marca.grande { width: 58px; height: 58px; font-size: 16px; border-radius: 12px; }
 #fr .cartao .papel { font-weight: 700; font-size: 15px; }
 #fr .cartao .quem { color: var(--fraco); font-size: 12.5px; line-height: 1.35; }
@@ -147,6 +155,13 @@ permalink: /apps/freedom/
   var elVeredito = document.getElementById('fr-veredito');
   var elNegocios = document.getElementById('fr-negocios');
 
+  function marca(t, d, grande) {
+    return '<span class="marca' + (grande ? ' grande' : '') +
+      '" style="background:' + esc(d.cor) + '">' + esc(t.slice(0, 4)) +
+      '<img src="logos/' + esc(t) + '.svg" alt="" loading="lazy" ' +
+      'onerror="this.remove()"></span>';
+  }
+
   function esc(t) {
     return String(t === null || t === undefined ? '' : t)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -252,7 +267,7 @@ permalink: /apps/freedom/
       return '<a class="cartao" href="#/' + t + '" data-busca="' + esc(chave) +
         '" data-setor="' + esc(d.setor) + '" data-veredito="' + d.veredito +
         '" data-negocia="' + (d.liquidez ? '1' : '0') + '">' +
-        '<span class="marca" style="background:' + esc(d.cor) + '">' + esc(t.slice(0, 4)) + '</span>' +
+        marca(t, d, false) +
         '<span><span class="papel">' + esc(t) + '</span>' + parado +
         '<br><span class="quem">' + esc(d.nome) + '<br>' + esc(d.setor) + '</span></span>' +
         '<span class="badge ' + d.veredito + '">' + ROTULO[d.veredito] + '</span></a>';
@@ -330,7 +345,7 @@ permalink: /apps/freedom/
     elDetalhe.innerHTML =
       '<a class="voltar" href="#">&larr; todas as ações</a>' +
       '<div class="cabecalho">' +
-      '<span class="marca grande" style="background:' + esc(d.cor) + '">' + esc(t.slice(0, 4)) + '</span>' +
+      marca(t, d, true) +
       '<div><h2>' + esc(t) + '</h2><div class="sub">' + esc(d.nome) + ' &middot; ' +
       esc(d.setor) + '</div>' + cotacao + '</div>' +
       '<span class="badge ' + d.veredito + '">' + ROTULO[d.veredito] + '</span></div>' +
