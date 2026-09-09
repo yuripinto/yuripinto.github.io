@@ -22,10 +22,15 @@ permalink: /apps/freedom/
 @media (min-width: 700px)  { #fr .lista { grid-template-columns: 1fr 1fr; } }
 @media (min-width: 1000px) { #fr .lista { grid-template-columns: 1fr 1fr 1fr; } }
 #fr .cartao {
-  display: flex; align-items: center; gap: 12px; background: #fff;
-  border: 1px solid var(--borda); border-radius: 10px; padding: 12px 14px;
-  transition: border-color .15s, transform .15s; cursor: pointer;
+  display: flex; flex-direction: column; align-items: stretch; gap: 9px;
+  background: #fff; border: 1px solid var(--borda); border-radius: 10px;
+  padding: 12px 14px; transition: border-color .15s, transform .15s;
+  cursor: pointer;
 }
+/* os selos são a primeira linha do card, encostados à esquerda; o logo e o
+   texto vêm embaixo. Antes os selos ficavam ao lado do logo e o degrau entre
+   um e outro ficava estranho. */
+#fr .cartao .linha { display: flex; align-items: center; gap: 12px; }
 #fr .cartao:hover { border-color: #9fb3c8; transform: translateY(-1px); }
 /* sem isto o filtro nao esconde nada: display:flex ganha do display:none
    que o atributo hidden aplica por padrao */
@@ -48,7 +53,7 @@ permalink: /apps/freedom/
              flex-wrap: wrap; gap: 5px; }
 #fr .cabecalho .selos { margin-left: auto; justify-content: flex-end; }
 /* no cartão os selos viram a primeira linha, acima do ticker */
-#fr .cartao .corpo { display: flex; flex-direction: column; gap: 3px;
+#fr .cartao .corpo { display: flex; flex-direction: column; gap: 2px;
                      min-width: 0; }
 #fr .badge {
   flex: 0 0 auto; font-size: 10.5px; font-weight: 700;
@@ -62,12 +67,9 @@ permalink: /apps/freedom/
 #fr .badge.ruim { background:#fbeaea; color:#8c2b2b; border:1px solid #eec2c2; }
 
 #fr .voltar { display:inline-block; color: var(--fraco); font-size: 14px; margin-bottom: 14px; }
-#fr .cabecalho { display:flex; align-items:center; gap:14px; margin-bottom:6px;
-                 flex-wrap: wrap; }
-/* o nome ocupa a linha e empurra os selos para baixo quando falta espaço,
-   em vez de deixá-los empilhar um sobre o outro */
-#fr .cabecalho > div { flex: 1 1 55%; min-width: 0; }
-#fr .cabecalho .selos { flex-wrap: nowrap; }
+#fr .cabecalho { display:flex; align-items:center; gap:14px; margin-bottom:6px; }
+#fr .cabecalho > div { min-width: 0; }
+#fr .selos-topo { margin-bottom: 10px; }
 #fr .cabecalho h2 { margin:0; font-size:22px; font-weight:700; }
 #fr .cabecalho .sub { color: var(--fraco); font-size:13px; }
 #fr .cotacao { color: var(--fraco); font-size:13px; margin-top:2px; }
@@ -213,14 +215,18 @@ permalink: /apps/freedom/
   var elVeredito = document.getElementById('fr-veredito');
   var elNegocios = document.getElementById('fr-negocios');
 
-  function selos(d) {
+  function selosInternos(d) {
     var posicao = d.posicao
       ? '<span class="posicao" title="posição no ranking das boas">#' +
         d.posicao + '</span>' : '';
     var paga = (d.dividendos && d.dividendos.situacao === 'bom')
       ? '<span class="pago" title="boa pagadora de dividendos">DIVIDENDOS</span>' : '';
-    return '<span class="selos"><span class="badge ' + d.veredito + '">' +
-      ROTULO[d.veredito] + '</span>' + posicao + paga + '</span>';
+    return '<span class="badge ' + d.veredito + '">' + ROTULO[d.veredito] +
+      '</span>' + posicao + paga;
+  }
+
+  function selos(d) {
+    return '<span class="selos">' + selosInternos(d) + '</span>';
   }
 
   function marca(t, d, grande) {
@@ -336,11 +342,12 @@ permalink: /apps/freedom/
         '" data-setor="' + esc(d.setor) + '" data-veredito="' + d.veredito +
         '" data-negocia="' + (d.liquidez ? '1' : '0') +
         '" data-posicao="' + (d.posicao || 0) + '" data-ordem="' + (i + 1) + '">' +
-        marca(t, d, false) +
-        '<span class="corpo">' + selos(d) +
+        selos(d) +
+        '<span class="linha">' + marca(t, d, false) +
+        '<span class="corpo">' +
         '<span class="papel">' + esc(t) + parado + '</span>' +
         '<span class="quem">' + esc(d.nome) + '<br>' + esc(d.setor) + '</span>' +
-        '</span></a>';
+        '</span></span></a>';
     }).join('');
     elCartoes.innerHTML = html;
     aplicarFiltro();
@@ -518,11 +525,11 @@ permalink: /apps/freedom/
 
     elDetalhe.innerHTML =
       '<a class="voltar" href="#">&larr; todas as ações</a>' +
+      '<div class="selos selos-topo">' + selosInternos(d) + '</div>' +
       '<div class="cabecalho">' +
       marca(t, d, true) +
       '<div><h2>' + esc(t) + '</h2><div class="sub">' + esc(d.nome) + ' &middot; ' +
-      esc(d.setor) + '</div>' + cotacao + '</div>' +
-      selos(d) + '</div>' +
+      esc(d.setor) + '</div>' + cotacao + '</div></div>' +
       '<div class="resumo ' + d.veredito + '">' + esc(d.resumo) + '</div>' +
       blocoSobre(d) +
       blocoDividendos(d) +
