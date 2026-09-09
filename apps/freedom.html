@@ -1,0 +1,401 @@
+---
+layout: modern-default
+title: Freedom
+permalink: /apps/freedom/
+---
+{% raw %}
+<style>
+#fr { --tinta:#1c2430; --fraco:#7b8794; --borda:#dde3ea; }
+#fr a { text-decoration: none; color: inherit; }
+#fr .busca, #fr select {
+  width: 100%; padding: 10px 12px; font-size: 15px; font-family: inherit;
+  border: 1px solid var(--borda); border-radius: 9px; background: #fff; color: var(--tinta);
+}
+#fr .busca:focus, #fr select:focus { outline: none; border-color: #9fb3c8; }
+#fr .filtros { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 8px; }
+@media (min-width: 640px) { #fr .filtros { grid-template-columns: 1fr 1fr 1fr; } }
+#fr .contador { color: var(--fraco); font-size: 13px; margin: 12px 0; }
+#fr .lista { display: grid; gap: 10px; grid-template-columns: 1fr; }
+@media (min-width: 700px) { #fr .lista { grid-template-columns: 1fr 1fr; } }
+#fr .cartao {
+  display: flex; align-items: center; gap: 12px; background: #fff;
+  border: 1px solid var(--borda); border-radius: 10px; padding: 12px 14px;
+  transition: border-color .15s, transform .15s; cursor: pointer;
+}
+#fr .cartao:hover { border-color: #9fb3c8; transform: translateY(-1px); }
+#fr .marca {
+  flex: 0 0 auto; width: 42px; height: 42px; border-radius: 9px; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 12px;
+}
+#fr .marca.grande { width: 58px; height: 58px; font-size: 16px; border-radius: 12px; }
+#fr .cartao .papel { font-weight: 700; font-size: 15px; }
+#fr .cartao .quem { color: var(--fraco); font-size: 12.5px; line-height: 1.35; }
+#fr .parado { color: #b6bec8; font-size: 10px; font-weight: 700; }
+#fr .badge {
+  margin-left: auto; flex: 0 0 auto; font-size: 10.5px; font-weight: 700;
+  letter-spacing: .3px; text-transform: uppercase; padding: 4px 9px; border-radius: 20px;
+}
+#fr .badge.bom { background:#e6f4ec; color:#1e5c3a; border:1px solid #b7ddc7; }
+#fr .badge.atencao { background:#fdf4e3; color:#7a5a12; border:1px solid #eed9a8; }
+#fr .badge.ruim { background:#fbeaea; color:#8c2b2b; border:1px solid #eec2c2; }
+
+#fr .voltar { display:inline-block; color: var(--fraco); font-size: 14px; margin-bottom: 14px; }
+#fr .cabecalho { display:flex; align-items:center; gap:14px; margin-bottom:6px; }
+#fr .cabecalho h2 { margin:0; font-size:22px; font-weight:700; }
+#fr .cabecalho .sub { color: var(--fraco); font-size:13px; }
+#fr .cotacao { color: var(--fraco); font-size:13px; margin-top:2px; }
+#fr .painel { background:#fff; border:1px solid var(--borda); border-radius:12px; padding:16px; margin-top:14px; }
+#fr .painel h3 { margin:0 0 12px; font-size:13px; text-transform:uppercase; letter-spacing:.8px; color:#5b6672; font-weight:700; }
+#fr .resumo { border-radius:10px; padding:12px 14px; font-size:15px; margin-top:14px; }
+#fr .resumo.bom { background:#e6f4ec; border:1px solid #b7ddc7; color:#1e5c3a; }
+#fr .resumo.atencao { background:#fdf4e3; border:1px solid #eed9a8; color:#7a5a12; }
+#fr .resumo.ruim { background:#fbeaea; border:1px solid #eec2c2; color:#8c2b2b; }
+
+#fr .rolagem { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+#fr table { border-collapse: separate; border-spacing: 0; width:100%; min-width: max-content;
+            font-size: 13px; font-variant-numeric: tabular-nums; }
+#fr thead th { background:#cfd9e8; color:#23324a; font-weight:700; padding:6px 9px;
+               text-align:right; white-space:nowrap; border-bottom:2px solid #b9c6da; }
+#fr thead th:last-child { border-radius:0 4px 0 0; }
+#fr tbody td { padding:5px 9px; text-align:right; border-bottom:1px solid #eef1f5; white-space:nowrap; }
+#fr thead th:first-child, #fr tbody td.ano {
+  position: sticky; left: 0; text-align:left; font-weight:700; color:#23324a;
+  border-right:1px solid #c6d0dd; box-shadow: 3px 0 6px -3px rgba(28,36,48,.18);
+}
+#fr thead th:first-child { z-index:3; background:#cfd9e8; border-radius:4px 0 0 0; }
+#fr tbody td.ano { z-index:2; background:#fff; }
+#fr .c-patrimonio{color:#3b5fa8;font-weight:600}#fr .c-receita{color:#7b5ea7;font-weight:600}
+#fr .c-lucro{color:#6f8020;font-weight:600}#fr .c-caixa{color:#2f8fa8;font-weight:600}
+#fr .c-divida{color:#a83b3b;font-weight:600}
+#fr .negativo{color:#c0392b}#fr .positivo{color:#2e7d4f}#fr .vazio{color:#b6bec8}
+
+#fr .grafico { width:100%; height:auto; display:block; }
+#fr .grade { stroke:#e3e8ee; stroke-width:1; }
+#fr .eixo { font-size:11px; fill:#7b8794; }
+#fr .eixo-y { text-anchor:end; } #fr .eixo-x { text-anchor:middle; }
+#fr .legenda { display:flex; flex-wrap:wrap; gap:16px; list-style:none; margin:8px 0 0;
+               padding:0; justify-content:center; font-size:12px; color:#5b6672; }
+#fr .legenda li { display:flex; align-items:center; gap:6px; }
+#fr .bolinha { width:16px; height:3px; border-radius:2px; }
+
+#fr .indicadores { display:flex; flex-wrap:wrap; gap:8px; }
+#fr .indicador { border:1px solid var(--borda); border-radius:8px; padding:7px 11px; min-width:88px; }
+#fr .indicador b { display:block; font-size:15px; }
+#fr .indicador span { color:var(--fraco); font-size:11px; }
+#fr .sinais { display:grid; gap:8px; grid-template-columns:1fr; }
+@media (min-width: 640px) { #fr .sinais { grid-template-columns:1fr 1fr; } }
+#fr .sinal { border:1px solid var(--borda); border-left-width:4px; border-radius:8px; padding:9px 11px; }
+#fr .sinal.bom{border-left-color:#2e7d4f}#fr .sinal.atencao{border-left-color:#d19a20}
+#fr .sinal.ruim{border-left-color:#c0392b}#fr .sinal.neutro{border-left-color:#a0aab5;background:#fafbfc}
+#fr .sinal b { display:block; font-size:13.5px; } #fr .sinal span { color:#5b6672; font-size:12.5px; }
+#fr .nota { background:#f7f9fc; border:1px solid #e3e8ee; border-left:3px solid #9fb3c8;
+            border-radius:6px; padding:9px 11px; margin-top:10px; font-size:12.5px; color:#4a5568; }
+#fr .fonte { margin-top:16px; font-size:12px; color:var(--fraco); line-height:1.6; }
+#fr .carregando { color: var(--fraco); padding: 30px 0; text-align:center; }
+</style>
+
+<div id="fr" class="px-6 py-8">
+  <div id="fr-lista">
+    <h1 class="text-2xl font-bold mb-1">Freedom</h1>
+    <p class="text-gray-500 text-sm mb-4">
+      Empresa boa é a que lucra, cresce e não vive de dívida. 692 ações da B3,
+      com o histórico anual direto dos balanços entregues à CVM.
+    </p>
+    <input class="busca" id="fr-busca" type="search" autocomplete="off"
+           placeholder="filtrar por ticker, empresa ou setor">
+    <div class="filtros">
+      <select id="fr-setor"><option value="">todos os setores</option></select>
+      <select id="fr-veredito">
+        <option value="">qualquer avaliação</option>
+        <option value="bom">só as boas</option>
+        <option value="atencao">só as de atenção</option>
+        <option value="ruim">só as ruins</option>
+      </select>
+      <select id="fr-negocios">
+        <option value="ativos">só as que negociam</option>
+        <option value="">todas, inclusive paradas</option>
+      </select>
+    </div>
+    <p class="contador"><span id="fr-conta">…</span></p>
+    <div class="lista" id="fr-cartoes"><p class="carregando">carregando os dados…</p></div>
+  </div>
+
+  <div id="fr-detalhe" hidden></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var BASE = null, TICKERS = [];
+  var SERIES = [
+    ['patrimonio', 'Patrimônio', '#3b5fa8'],
+    ['receita',    'Receita',    '#7b5ea7'],
+    ['lucro',      'Lucro',      '#8a9a3b'],
+    ['caixa',      'Caixa',      '#4bacc6'],
+    ['divida',     'Dívida',     '#a83b3b']
+  ];
+  var ROTULO = { bom: 'boa', atencao: 'atenção', ruim: 'ruim' };
+  var ORDEM  = { bom: 0, atencao: 1, ruim: 2 };
+
+  var elLista = document.getElementById('fr-lista');
+  var elDetalhe = document.getElementById('fr-detalhe');
+  var elCartoes = document.getElementById('fr-cartoes');
+  var elConta = document.getElementById('fr-conta');
+  var elBusca = document.getElementById('fr-busca');
+  var elSetor = document.getElementById('fr-setor');
+  var elVeredito = document.getElementById('fr-veredito');
+  var elNegocios = document.getElementById('fr-negocios');
+
+  function esc(t) {
+    return String(t === null || t === undefined ? '' : t)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+  function limpar(t) {
+    return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+  function moeda(v) {
+    if (v === null || v === undefined) { return '&mdash;'; }
+    return Math.round(v).toLocaleString('pt-BR');
+  }
+  function pct(v, casas) {
+    if (v === null || v === undefined) { return '&mdash;'; }
+    return v.toFixed(casas === undefined ? 2 : casas).replace('.', ',') + '%';
+  }
+  function num(v, casas) {
+    if (v === null || v === undefined) { return '&mdash;'; }
+    return v.toFixed(casas).replace('.', ',');
+  }
+
+  // ---- gráfico: mesma escala do app em Python
+  function escalaTopo(maximo) {
+    if (maximo <= 0) { return [1, 1]; }
+    var divisoesTentar = [7, 6, 5, 8], mults = [1, 2, 2.5, 5, 10];
+    for (var d = 0; d < divisoesTentar.length; d++) {
+      var divisoes = divisoesTentar[d];
+      var bruto = maximo / divisoes;
+      var magnitude = Math.pow(10, String(Math.floor(bruto)).length - 1);
+      for (var m = 0; m < mults.length; m++) {
+        var passo = magnitude * mults[m];
+        if (passo * divisoes >= maximo) { return [passo * divisoes, divisoes]; }
+      }
+    }
+    return [maximo, 5];
+  }
+
+  function seriesPresentes(linhas) {
+    return SERIES.filter(function (s) {
+      return linhas.some(function (l) {
+        return l[s[0]] !== null && l[s[0]] !== undefined;
+      });
+    });
+  }
+
+  function grafico(linhas) {
+    var L = 860, A = 380, ME = 78, MD = 24, MT = 20, MB = 46;
+    var series = seriesPresentes(linhas);
+    var maximo = 0;
+    linhas.forEach(function (l) {
+      series.forEach(function (s) {
+        if (l[s[0]] !== null && l[s[0]] > maximo) { maximo = l[s[0]]; }
+      });
+    });
+    var par = escalaTopo(maximo), topo = par[0], divisoes = par[1];
+    var areaL = L - ME - MD, areaA = A - MT - MB, n = linhas.length;
+    function x(i) { return n === 1 ? ME + areaL / 2 : ME + areaL * i / (n - 1); }
+    function y(v) { return MT + areaA * (1 - v / topo); }
+
+    var p = ['<svg class="grafico" viewBox="0 0 ' + L + ' ' + A + '" ' +
+             'preserveAspectRatio="xMidYMid meet" role="img" ' +
+             'aria-label="Evolução anual dos números da empresa">'];
+    for (var i = 0; i <= divisoes; i++) {
+      var valor = topo * i / divisoes, yy = y(valor);
+      p.push('<line x1="' + ME + '" y1="' + yy.toFixed(1) + '" x2="' + (L - MD) +
+             '" y2="' + yy.toFixed(1) + '" class="grade"/>');
+      p.push('<text x="' + (ME - 10) + '" y="' + (yy + 4).toFixed(1) +
+             '" class="eixo eixo-y">' + moeda(valor) + '</text>');
+    }
+    linhas.forEach(function (l, i) {
+      p.push('<text x="' + x(i).toFixed(1) + '" y="' + (A - MB + 22) +
+             '" class="eixo eixo-x">' + l.ano + '</text>');
+    });
+    series.forEach(function (s) {
+      var pontos = [];
+      linhas.forEach(function (l, i) {
+        if (l[s[0]] === null || l[s[0]] === undefined) { return; }
+        pontos.push(x(i).toFixed(1) + ',' + y(l[s[0]]).toFixed(1));
+      });
+      if (!pontos.length) { return; }
+      p.push('<polyline points="' + pontos.join(' ') + '" fill="none" stroke="' +
+             s[2] + '" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>');
+      linhas.forEach(function (l, i) {
+        if (l[s[0]] === null || l[s[0]] === undefined) { return; }
+        p.push('<circle cx="' + x(i).toFixed(1) + '" cy="' + y(l[s[0]]).toFixed(1) +
+               '" r="2.8" fill="' + s[2] + '"><title>' + l.ano + ' · ' + s[1] +
+               ': ' + moeda(l[s[0]]) + '</title></circle>');
+      });
+    });
+    p.push('</svg>');
+    p.push('<ul class="legenda">' + series.map(function (s) {
+      return '<li><span class="bolinha" style="background:' + s[2] + '"></span>' + s[1] + '</li>';
+    }).join('') + '</ul>');
+    return p.join('');
+  }
+
+  // ---- lista
+  function montarCartoes() {
+    var html = TICKERS.map(function (t) {
+      var d = BASE[t];
+      var chave = limpar(t + ' ' + d.nome + ' ' + d.setor);
+      var parado = d.liquidez ? '' : ' <span class="parado">SEM NEGÓCIOS</span>';
+      return '<a class="cartao" href="#/' + t + '" data-busca="' + esc(chave) +
+        '" data-setor="' + esc(d.setor) + '" data-veredito="' + d.veredito +
+        '" data-negocia="' + (d.liquidez ? '1' : '0') + '">' +
+        '<span class="marca" style="background:' + esc(d.cor) + '">' + esc(t.slice(0, 4)) + '</span>' +
+        '<span><span class="papel">' + esc(t) + '</span>' + parado +
+        '<br><span class="quem">' + esc(d.nome) + '<br>' + esc(d.setor) + '</span></span>' +
+        '<span class="badge ' + d.veredito + '">' + ROTULO[d.veredito] + '</span></a>';
+    }).join('');
+    elCartoes.innerHTML = html;
+    aplicarFiltro();
+  }
+
+  function aplicarFiltro() {
+    var alvo = limpar(elBusca.value.trim());
+    var setor = elSetor.value, veredito = elVeredito.value;
+    var soAtivos = elNegocios.value === 'ativos';
+    var cartoes = elCartoes.querySelectorAll('.cartao'), visiveis = 0;
+    for (var i = 0; i < cartoes.length; i++) {
+      var c = cartoes[i];
+      var bate = (!alvo || c.dataset.busca.indexOf(alvo) !== -1)
+        && (!setor || c.dataset.setor === setor)
+        && (!veredito || c.dataset.veredito === veredito)
+        && (!soAtivos || c.dataset.negocia === '1');
+      c.hidden = !bate;
+      if (bate) { visiveis++; }
+    }
+    elConta.textContent = visiveis + ' de ' + cartoes.length + ' ações';
+  }
+
+  // ---- detalhe
+  function montarDetalhe(t) {
+    var d = BASE[t];
+    if (!d) { elDetalhe.innerHTML = '<p class="carregando">Ação não encontrada.</p>'; return; }
+
+    var corpo = d.linhas.map(function (l) {
+      var cx = l.caixa_liquido;
+      var celulaCx = cx === null ? '<td class="vazio">&mdash;</td>'
+        : '<td class="' + (cx < 0 ? 'negativo' : 'positivo') + '">' + moeda(cx) + '</td>';
+      var celulaDiv = l.divida === null ? '<td class="vazio">&mdash;</td>'
+        : '<td class="c-divida">' + moeda(l.divida) + '</td>';
+      var celulaDivPl = l.divida_pl === null ? '<td class="vazio">&mdash;</td>'
+        : '<td>' + num(l.divida_pl, 2) + '</td>';
+      var celulaMargem = l.margem === null ? '<td class="vazio">&mdash;</td>'
+        : '<td class="' + (l.margem < 0 ? 'negativo' : '') + '">' + pct(l.margem) + '</td>';
+      var celulaRoe = l.roe === null ? '<td class="vazio">&mdash;</td>'
+        : '<td class="' + (l.roe < 0 ? 'negativo' : '') + '">' + pct(l.roe) + '</td>';
+      return '<tr><td class="ano">' + l.ano + '</td>' +
+        '<td class="c-patrimonio">' + moeda(l.patrimonio) + '</td>' +
+        '<td class="c-receita">' + moeda(l.receita) + '</td>' +
+        '<td class="c-lucro">' + moeda(l.lucro) + '</td>' +
+        celulaMargem + celulaRoe +
+        '<td class="c-caixa">' + moeda(l.caixa) + '</td>' +
+        celulaCx + celulaDiv + celulaDivPl + '</tr>';
+    }).join('');
+
+    var indicadores = '';
+    var chaves = Object.keys(d.indicadores || {});
+    if (chaves.length) {
+      indicadores = '<div class="painel"><h3>Indicadores de hoje (Fundamentus)</h3>' +
+        '<div class="indicadores">' + chaves.map(function (k) {
+          return '<div class="indicador"><b>' + num(d.indicadores[k], 2) +
+                 '</b><span>' + esc(k) + '</span></div>';
+        }).join('') + '</div></div>';
+    }
+
+    var sinais = d.sinais.map(function (s) {
+      return '<div class="sinal ' + s.situacao + '"><b>' + esc(s.titulo) +
+             '</b><span>' + esc(s.detalhe) + '</span></div>';
+    }).join('');
+
+    var notas = (d.notas || []).map(function (n) {
+      return '<div class="nota">' + esc(n) + '</div>';
+    }).join('');
+
+    var cotacao = d.cotacao
+      ? '<div class="cotacao">R$ ' + num(d.cotacao, 2) + ' &middot; coletado em ' +
+        esc(d.coletado_em || '-') + '</div>' : '';
+
+    elDetalhe.innerHTML =
+      '<a class="voltar" href="#">&larr; todas as ações</a>' +
+      '<div class="cabecalho">' +
+      '<span class="marca grande" style="background:' + esc(d.cor) + '">' + esc(t.slice(0, 4)) + '</span>' +
+      '<div><h2>' + esc(t) + '</h2><div class="sub">' + esc(d.nome) + ' &middot; ' +
+      esc(d.setor) + '</div>' + cotacao + '</div>' +
+      '<span class="badge ' + d.veredito + '">' + ROTULO[d.veredito] + '</span></div>' +
+      '<div class="resumo ' + d.veredito + '">' + esc(d.resumo) + '</div>' +
+      indicadores +
+      '<div class="painel"><h3>Histórico anual (R$ milhões)</h3><div class="rolagem">' +
+      '<table><thead><tr><th>ANO</th><th>Patrimônio</th><th>Receita</th><th>Lucro</th>' +
+      '<th>Margem</th><th>ROE</th><th>Caixa</th><th>CX Líq</th><th>Dívida</th><th>Dív/PL</th>' +
+      '</tr></thead><tbody>' + corpo + '</tbody></table></div></div>' +
+      '<div class="painel"><h3>Evolução</h3>' + grafico(d.linhas) + '</div>' +
+      '<div class="painel"><h3>Checklist</h3><div class="sinais">' + sinais + '</div>' + notas + '</div>' +
+      '<p class="fonte">Série anual e cadastro: CVM (dados.cvm.gov.br). Cotação e ' +
+      'indicadores do dia: fundamentus.com.br. Código CVM ' + esc(d.codigo_cvm) + '.<br>' +
+      'Isto não é recomendação de compra ou venda: é o retrato do histórico da empresa.</p>';
+  }
+
+  function rota() {
+    var t = (location.hash || '').replace(/^#\/?/, '').toUpperCase();
+    if (t && BASE && BASE[t]) {
+      montarDetalhe(t);
+      elLista.hidden = true;
+      elDetalhe.hidden = false;
+    } else {
+      elLista.hidden = false;
+      elDetalhe.hidden = true;
+    }
+    window.scrollTo(0, 0);
+  }
+
+  fetch('dados.json').then(function (r) { return r.json(); }).then(function (base) {
+    BASE = base;
+    TICKERS = Object.keys(base).sort(function (a, b) {
+      var da = base[a], db = base[b];
+      if (da.liquidez !== db.liquidez) { return db.liquidez - da.liquidez; }
+      return a < b ? -1 : 1;
+    });
+    var setores = {};
+    TICKERS.forEach(function (t) { setores[base[t].setor] = 1; });
+    Object.keys(setores).sort(function (a, b) {
+      return limpar(a) < limpar(b) ? -1 : 1;
+    }).forEach(function (s) {
+      var o = document.createElement('option');
+      o.value = s; o.textContent = s;
+      elSetor.appendChild(o);
+    });
+    montarCartoes();
+    rota();
+  }).catch(function (erro) {
+    elCartoes.innerHTML = '<p class="carregando">Não consegui carregar os dados. ' +
+      esc(erro.message) + '</p>';
+  });
+
+  elBusca.addEventListener('input', aplicarFiltro);
+  elSetor.addEventListener('change', aplicarFiltro);
+  elVeredito.addEventListener('change', aplicarFiltro);
+  elNegocios.addEventListener('change', aplicarFiltro);
+  window.addEventListener('hashchange', rota);
+})();
+</script>
+{% endraw %}
+
+{%- include modern-links.html -%}
+
+<div class="px-6 pb-8">
+  <div class="flex justify-center">
+    <a href="/apps" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-lg text-sm">Voltar para apps</a>
+  </div>
+</div>
