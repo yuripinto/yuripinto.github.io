@@ -221,8 +221,9 @@ permalink: /apps/freedom/
         d.posicao + '</span>' : '';
     var paga = (d.dividendos && d.dividendos.situacao === 'bom')
       ? '<span class="pago" title="boa pagadora de dividendos">DIVIDENDOS</span>' : '';
-    return '<span class="badge ' + d.veredito + '">' + ROTULO[d.veredito] +
-      '</span>' + posicao + paga;
+    // a posição no ranking vem sempre primeiro
+    return posicao + '<span class="badge ' + d.veredito + '">' +
+      ROTULO[d.veredito] + '</span>' + paga;
   }
 
   function selos(d) {
