@@ -40,10 +40,15 @@ permalink: /apps/freedom/
 #fr .cartao .papel { font-weight: 700; font-size: 15px; }
 #fr .cartao .quem { color: var(--fraco); font-size: 12.5px; line-height: 1.35; }
 #fr .parado { color: #b6bec8; font-size: 10px; font-weight: 700; }
+#fr .selos { margin-left: auto; flex: 0 0 auto; display: flex;
+             flex-direction: column; align-items: flex-end; gap: 4px; }
 #fr .badge {
-  margin-left: auto; flex: 0 0 auto; font-size: 10.5px; font-weight: 700;
+  flex: 0 0 auto; font-size: 10.5px; font-weight: 700;
   letter-spacing: .3px; text-transform: uppercase; padding: 4px 9px; border-radius: 20px;
 }
+#fr .posicao { font-size: 11px; font-weight: 700; color: #23324a;
+               background: #eef1f5; border: 1px solid #dde3ea;
+               border-radius: 20px; padding: 2px 8px; }
 #fr .badge.bom { background:#e6f4ec; color:#1e5c3a; border:1px solid #b7ddc7; }
 #fr .badge.atencao { background:#fdf4e3; color:#7a5a12; border:1px solid #eed9a8; }
 #fr .badge.ruim { background:#fbeaea; color:#8c2b2b; border:1px solid #eec2c2; }
@@ -155,6 +160,14 @@ permalink: /apps/freedom/
   var elVeredito = document.getElementById('fr-veredito');
   var elNegocios = document.getElementById('fr-negocios');
 
+  function selos(d) {
+    var posicao = d.posicao
+      ? '<span class="posicao" title="posição no ranking das boas">#' +
+        d.posicao + '</span>' : '';
+    return '<span class="selos"><span class="badge ' + d.veredito + '">' +
+      ROTULO[d.veredito] + '</span>' + posicao + '</span>';
+  }
+
   function marca(t, d, grande) {
     return '<span class="marca' + (grande ? ' grande' : '') +
       '" style="background:' + esc(d.cor) + '">' + esc(t.slice(0, 4)) +
@@ -260,17 +273,18 @@ permalink: /apps/freedom/
 
   // ---- lista
   function montarCartoes() {
-    var html = TICKERS.map(function (t) {
+    var html = TICKERS.map(function (t, i) {
       var d = BASE[t];
       var chave = limpar(t + ' ' + d.nome + ' ' + d.setor);
       var parado = d.liquidez ? '' : ' <span class="parado">SEM NEGÓCIOS</span>';
       return '<a class="cartao" href="#/' + t + '" data-busca="' + esc(chave) +
         '" data-setor="' + esc(d.setor) + '" data-veredito="' + d.veredito +
-        '" data-negocia="' + (d.liquidez ? '1' : '0') + '">' +
+        '" data-negocia="' + (d.liquidez ? '1' : '0') +
+        '" data-posicao="' + (d.posicao || 0) + '" data-ordem="' + (i + 1) + '">' +
         marca(t, d, false) +
         '<span><span class="papel">' + esc(t) + '</span>' + parado +
         '<br><span class="quem">' + esc(d.nome) + '<br>' + esc(d.setor) + '</span></span>' +
-        '<span class="badge ' + d.veredito + '">' + ROTULO[d.veredito] + '</span></a>';
+        selos(d) + '</a>';
     }).join('');
     elCartoes.innerHTML = html;
     aplicarFiltro();
@@ -280,7 +294,10 @@ permalink: /apps/freedom/
     var alvo = limpar(elBusca.value.trim());
     var setor = elSetor.value, veredito = elVeredito.value;
     var soAtivos = elNegocios.value === 'ativos';
-    var cartoes = elCartoes.querySelectorAll('.cartao'), visiveis = 0;
+    // filtrando só as boas, a lista passa a seguir o ranking; fora disso
+    // volta para a ordem padrão, que é por liquidez
+    var porRanking = veredito === 'bom';
+    var cartoes = elCartoes.querySelectorAll('.cartao'), visiveis = 0, comPosicao = 0;
     for (var i = 0; i < cartoes.length; i++) {
       var c = cartoes[i];
       var bate = (!alvo || c.dataset.busca.indexOf(alvo) !== -1)
@@ -288,9 +305,17 @@ permalink: /apps/freedom/
         && (!veredito || c.dataset.veredito === veredito)
         && (!soAtivos || c.dataset.negocia === '1');
       c.hidden = !bate;
-      if (bate) { visiveis++; }
+      c.style.order = porRanking
+        ? (Number(c.dataset.posicao) || 9999)   // sem posição vai para o fim
+        : Number(c.dataset.ordem);
+      if (bate) {
+        visiveis++;
+        if (Number(c.dataset.posicao)) { comPosicao++; }
+      }
     }
-    elConta.textContent = visiveis + ' de ' + cartoes.length + ' ações';
+    elConta.textContent = visiveis + ' de ' + cartoes.length + ' ações' +
+      (porRanking && comPosicao
+        ? ' · ' + comPosicao + ' no ranking, em ordem' : '');
   }
 
   // ---- detalhe
@@ -348,7 +373,7 @@ permalink: /apps/freedom/
       marca(t, d, true) +
       '<div><h2>' + esc(t) + '</h2><div class="sub">' + esc(d.nome) + ' &middot; ' +
       esc(d.setor) + '</div>' + cotacao + '</div>' +
-      '<span class="badge ' + d.veredito + '">' + ROTULO[d.veredito] + '</span></div>' +
+      selos(d) + '</div>' +
       '<div class="resumo ' + d.veredito + '">' + esc(d.resumo) + '</div>' +
       indicadores +
       '<div class="painel"><h3>Histórico anual (R$ milhões)</h3><div class="rolagem">' +
