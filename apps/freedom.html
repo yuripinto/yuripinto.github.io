@@ -161,6 +161,41 @@ permalink: /apps/freedom/
             background:#e6f4ec; border:1px solid #b7ddc7; border-radius:20px;
             padding:2px 7px; }
 #fr .carregando { color: var(--fraco); padding: 30px 0; text-align:center; }
+
+#fr .botao {
+  display: inline-flex; align-items: center; gap: 8px; margin-top: 12px;
+  background: #2b6cb0; color: #fff; font-weight: 700; font-size: 14px;
+  padding: 11px 16px; border-radius: 9px; border: none; cursor: pointer;
+}
+#fr .botao:hover { background: #245a95; }
+#fr .botao.fraco { background: #fff; color: #2b6cb0; border: 1px solid #c9dcf0; }
+#fr .botao.fraco:hover { background: #eef4fb; }
+
+#fr .form-carteira { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+#fr .form-carteira input[type=text] { flex: 1 1 150px; }
+#fr .form-carteira input[type=number] { flex: 0 0 110px; }
+#fr .form-carteira input {
+  padding: 10px 12px; font-size: 15px; font-family: inherit; color: var(--tinta);
+  border: 1px solid var(--borda); border-radius: 9px; background: #fff;
+}
+#fr .form-carteira input:focus { outline: none; border-color: #9fb3c8; }
+
+#fr .totais { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+#fr .total {
+  flex: 1 1 150px; border: 1px solid var(--borda); border-radius: 10px;
+  padding: 12px 14px; background: #fff;
+}
+#fr .total b { display: block; font-size: 21px; line-height: 1.2; }
+#fr .total span { color: var(--fraco); font-size: 12px; }
+#fr .total.destaque { background: #e6f4ec; border-color: #b7ddc7; }
+#fr .total.destaque b { color: #1e5c3a; }
+#fr .tirar {
+  border: none; background: none; color: #b6bec8; cursor: pointer;
+  font-size: 16px; line-height: 1; padding: 0 4px;
+}
+#fr .tirar:hover { color: #c0392b; }
+#fr tfoot td { font-weight: 700; border-top: 2px solid #cfd9e8; background: #f7f9fc; }
+#fr .vazia { color: var(--fraco); padding: 22px 0; text-align: center; font-size: 14px; }
 </style>
 
 <div id="fr" class="px-6 py-8">
@@ -170,6 +205,8 @@ permalink: /apps/freedom/
       Empresa boa é a que lucra, cresce e não vive de dívida. 692 ações da B3,
       com o histórico anual direto dos balanços entregues à CVM.
     </p>
+    <a class="botao" href="#/simulador">Simulador de dividendos</a>
+    <div style="height:14px"></div>
     <input class="busca" id="fr-busca" type="search" autocomplete="off"
            placeholder="filtrar por ticker, empresa ou setor">
     <div class="filtros">
@@ -190,6 +227,7 @@ permalink: /apps/freedom/
   </div>
 
   <div id="fr-detalhe" hidden></div>
+  <div id="fr-simulador" hidden></div>
 </div>
 
 <script>
@@ -207,6 +245,7 @@ permalink: /apps/freedom/
   var ORDEM  = { bom: 0, atencao: 1, ruim: 2 };
 
   var elLista = document.getElementById('fr-lista');
+  var elSimulador = document.getElementById('fr-simulador');
   var elDetalhe = document.getElementById('fr-detalhe');
   var elCartoes = document.getElementById('fr-cartoes');
   var elConta = document.getElementById('fr-conta');
@@ -546,15 +585,162 @@ permalink: /apps/freedom/
       'Isto não é recomendação de compra ou venda: é o retrato do histórico da empresa.</p>';
   }
 
+  // ---- simulador de dividendos
+  var CHAVE = 'freedom.carteira';
+
+  function lerCarteira() {
+    try {
+      var bruto = window.localStorage.getItem(CHAVE);
+      var lista = bruto ? JSON.parse(bruto) : [];
+      return Array.isArray(lista) ? lista : [];
+    } catch (e) { return []; }
+  }
+
+  function salvarCarteira(lista) {
+    try { window.localStorage.setItem(CHAVE, JSON.stringify(lista)); } catch (e) {}
+  }
+
+  function reais(v) {
+    return 'R$ ' + v.toLocaleString('pt-BR',
+      { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  // dividendo por ação = preço x dividend yield dos últimos 12 meses
+  function porAcao(d) {
+    if (!d || !d.cotacao) { return null; }
+    var dy = d.indicadores && d.indicadores['Div.Yield'];
+    if (!dy) { return null; }
+    return d.cotacao * dy / 100;
+  }
+
+  function montarSimulador() {
+    var carteira = lerCarteira().filter(function (p) { return BASE[p.t]; });
+    var totalInvestido = 0, totalAno = 0, semEstimativa = 0;
+
+    var linhas = carteira.map(function (p, i) {
+      var d = BASE[p.t];
+      var dps = porAcao(d);
+      var investido = (d.cotacao || 0) * p.q;
+      var ano = dps === null ? null : dps * p.q;
+      totalInvestido += investido;
+      if (ano === null) { semEstimativa++; } else { totalAno += ano; }
+      var dv = d.dividendos || {};
+      var selo = dv.situacao === 'bom'
+        ? '<span class="pago">BOA PAGADORA</span>'
+        : (dv.situacao === 'regular'
+            ? '<span class="posicao" title="' + esc(dv.titulo) + '">irregular</span>'
+            : '');
+      return '<tr>' +
+        '<td class="ano"><a href="#/' + p.t + '">' + esc(p.t) + '</a> ' + selo + '</td>' +
+        '<td>' + p.q.toLocaleString('pt-BR') + '</td>' +
+        '<td>' + (d.cotacao ? reais(d.cotacao) : '&mdash;') + '</td>' +
+        '<td>' + reais(investido) + '</td>' +
+        '<td>' + (dps === null ? '<span class="vazio">&mdash;</span>' : reais(dps)) + '</td>' +
+        '<td>' + (ano === null ? '<span class="vazio">sem estimativa</span>'
+                               : '<b>' + reais(ano) + '</b>') + '</td>' +
+        '<td>' + (ano === null ? '<span class="vazio">&mdash;</span>'
+                               : reais(ano / 12)) + '</td>' +
+        '<td><button class="tirar" data-tirar="' + i + '" title="remover">&times;</button></td>' +
+        '</tr>';
+    }).join('');
+
+    var tabela = carteira.length
+      ? '<div class="rolagem"><table><thead><tr>' +
+        '<th>PAPEL</th><th>QTD</th><th>PREÇO</th><th>INVESTIDO</th>' +
+        '<th>DIV/AÇÃO ANO</th><th>POR ANO</th><th>POR MÊS</th><th></th>' +
+        '</tr></thead><tbody>' + linhas + '</tbody>' +
+        '<tfoot><tr><td class="ano">TOTAL</td><td></td><td></td>' +
+        '<td>' + reais(totalInvestido) + '</td><td></td>' +
+        '<td>' + reais(totalAno) + '</td><td>' + reais(totalAno / 12) + '</td><td></td>' +
+        '</tr></tfoot></table></div>'
+      : '<p class="vazia">Sua carteira está vazia. Adicione um papel acima.</p>';
+
+    var yieldCarteira = totalInvestido ? totalAno / totalInvestido * 100 : 0;
+    var totais = carteira.length
+      ? '<div class="totais">' +
+        '<div class="total destaque"><b>' + reais(totalAno) + '</b>' +
+        '<span>dividendos por ano</span></div>' +
+        '<div class="total destaque"><b>' + reais(totalAno / 12) + '</b>' +
+        '<span>média por mês</span></div>' +
+        '<div class="total"><b>' + reais(totalInvestido) + '</b>' +
+        '<span>valor da carteira</span></div>' +
+        '<div class="total"><b>' + num(yieldCarteira, 2) + '%</b>' +
+        '<span>yield da carteira</span></div>' +
+        '</div>' : '';
+
+    var opcoes = TICKERS.filter(function (t) { return BASE[t].liquidez > 0; })
+      .map(function (t) {
+        return '<option value="' + esc(t) + '">' + esc(BASE[t].nome) + '</option>';
+      }).join('');
+
+    var alerta = semEstimativa
+      ? '<div class="nota">' + semEstimativa + ' papel(is) sem dividend yield ' +
+        'publicado — entram no valor da carteira, mas não na estimativa.</div>' : '';
+
+    elSimulador.innerHTML =
+      '<a class="voltar" href="#">&larr; todas as ações</a>' +
+      '<h2 style="margin:0 0 4px;font-size:22px;font-weight:700">' +
+      'Simulador de dividendos</h2>' +
+      '<p class="quem" style="margin:0 0 14px">Liste o que você tem e veja quanto ' +
+      'isso renderia por ano e por mês.</p>' +
+      '<div class="painel"><h3>Adicionar papel</h3>' +
+      '<div class="form-carteira">' +
+      '<input type="text" id="fr-papel" list="fr-tickers" autocomplete="off" ' +
+      'placeholder="ticker, ex.: WEGE3">' +
+      '<datalist id="fr-tickers">' + opcoes + '</datalist>' +
+      '<input type="number" id="fr-qtd" min="1" step="1" placeholder="quantidade">' +
+      '<button class="botao" id="fr-add">Adicionar</button>' +
+      '</div></div>' +
+      totais +
+      '<div class="painel"><h3>Sua carteira</h3>' + tabela + alerta + '</div>' +
+      '<p class="fonte">A estimativa usa o <b>dividend yield dos últimos 12 meses</b> ' +
+      'aplicado ao preço atual: dividendo por ação = preço &times; DY. É uma projeção ' +
+      'do que a empresa <i>já pagou</i>, não uma promessa do que vai pagar — e o ' +
+      'valor por mês é a média anual dividida por 12, já que os pagamentos são ' +
+      'concentrados em algumas datas.<br>Os dados ficam salvos só neste navegador.</p>';
+
+    var add = document.getElementById('fr-add');
+    add.addEventListener('click', function () {
+      var papel = (document.getElementById('fr-papel').value || '').trim().toUpperCase();
+      var qtd = parseInt(document.getElementById('fr-qtd').value, 10);
+      if (!BASE[papel] || !(qtd > 0)) {
+        document.getElementById('fr-papel').focus();
+        return;
+      }
+      var lista = lerCarteira();
+      var achou = false;
+      for (var i = 0; i < lista.length; i++) {
+        if (lista[i].t === papel) { lista[i].q += qtd; achou = true; break; }
+      }
+      if (!achou) { lista.push({ t: papel, q: qtd }); }
+      salvarCarteira(lista);
+      montarSimulador();
+    });
+
+    Array.prototype.forEach.call(
+      elSimulador.querySelectorAll('[data-tirar]'), function (b) {
+        b.addEventListener('click', function () {
+          var lista = lerCarteira();
+          lista.splice(Number(b.dataset.tirar), 1);
+          salvarCarteira(lista);
+          montarSimulador();
+        });
+      });
+  }
+
   function rota() {
     var t = (location.hash || '').replace(/^#\/?/, '').toUpperCase();
-    if (t && BASE && BASE[t]) {
+    elLista.hidden = true;
+    elDetalhe.hidden = true;
+    elSimulador.hidden = true;
+    if (t === 'SIMULADOR' && BASE) {
+      montarSimulador();
+      elSimulador.hidden = false;
+    } else if (t && BASE && BASE[t]) {
       montarDetalhe(t);
-      elLista.hidden = true;
       elDetalhe.hidden = false;
     } else {
       elLista.hidden = false;
-      elDetalhe.hidden = true;
     }
     window.scrollTo(0, 0);
   }
