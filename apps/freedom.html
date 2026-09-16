@@ -18,11 +18,8 @@ permalink: /apps/freedom/
 #fr .filtros { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 8px; }
 @media (min-width: 640px) { #fr .filtros { grid-template-columns: 1fr 1fr 1fr; } }
 /* a bolsa não é um filtro da lista: ela troca a base inteira. Por isso fica
-   sozinha, acima da busca, e com o nome à vista. */
-#fr .bolsa { display: flex; align-items: center; gap: 10px; margin: 14px 0 10px; }
-#fr .bolsa label { font-size: 13px; font-weight: 700; color: #5b6672;
-                   text-transform: uppercase; letter-spacing: .6px; }
-#fr .bolsa select { width: auto; flex: 0 1 260px; }
+   sozinha, acima da busca, na mesma largura dos outros campos. */
+#fr .bolsa { margin: 14px 0 10px; }
 #fr .contador { color: var(--fraco); font-size: 13px; margin: 12px 0; }
 #fr .lista { display: grid; gap: 10px; grid-template-columns: 1fr; }
 @media (min-width: 700px)  { #fr .lista { grid-template-columns: 1fr 1fr; } }
@@ -213,11 +210,10 @@ permalink: /apps/freedom/
     </p>
     <a class="botao" href="#/simulador">Simulador de dividendos</a>
     <div class="bolsa">
-      <label for="fr-bolsa">Bolsa</label>
-      <select id="fr-bolsa">
-        <option value="B3" selected>B3 &mdash; Brasil</option>
-        <option value="NYSE">NYSE &mdash; Estados Unidos</option>
-        <option value="NASDAQ">NASDAQ &mdash; Estados Unidos</option>
+      <select id="fr-bolsa" aria-label="bolsa">
+        <option value="B3" selected>bolsa B3 &mdash; Brasil</option>
+        <option value="NYSE">bolsa NYSE &mdash; Estados Unidos</option>
+        <option value="NASDAQ">bolsa NASDAQ &mdash; Estados Unidos</option>
       </select>
     </div>
     <input class="busca" id="fr-busca" type="search" autocomplete="off"
