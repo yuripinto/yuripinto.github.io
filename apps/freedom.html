@@ -17,6 +17,9 @@ permalink: /apps/freedom/
 #fr .busca:focus, #fr select:focus { outline: none; border-color: #9fb3c8; }
 #fr .filtros { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 8px; }
 @media (min-width: 640px) { #fr .filtros { grid-template-columns: 1fr 1fr 1fr; } }
+/* a bolsa não é um filtro da lista: ela troca a base inteira. Por isso fica
+   sozinha, acima da busca, na mesma largura dos outros campos. */
+#fr .bolsa { margin: 14px 0 10px; }
 #fr .contador { color: var(--fraco); font-size: 13px; margin: 12px 0; }
 #fr .lista { display: grid; gap: 10px; grid-template-columns: 1fr; }
 @media (min-width: 700px)  { #fr .lista { grid-template-columns: 1fr 1fr; } }
@@ -201,12 +204,18 @@ permalink: /apps/freedom/
 <div id="fr" class="px-6 py-8">
   <div id="fr-lista">
     <h1 class="text-2xl font-bold mb-1">Freedom</h1>
-    <p class="text-gray-500 text-sm mb-4">
+    <p class="text-gray-500 text-sm mb-4" id="fr-chamada">
       Empresa boa é a que lucra, cresce e não vive de dívida. 693 ações da B3,
       com o histórico anual direto dos balanços entregues à CVM.
     </p>
     <a class="botao" href="#/simulador">Simulador de dividendos</a>
-    <div style="height:14px"></div>
+    <div class="bolsa">
+      <select id="fr-bolsa" aria-label="bolsa">
+        <option value="B3" selected>bolsa B3 &mdash; Brasil</option>
+        <option value="NYSE">bolsa NYSE &mdash; Estados Unidos</option>
+        <option value="NASDAQ">bolsa NASDAQ &mdash; Estados Unidos</option>
+      </select>
+    </div>
     <input class="busca" id="fr-busca" type="search" autocomplete="off"
            placeholder="filtrar por ticker, empresa ou setor">
     <div class="filtros">
@@ -233,7 +242,22 @@ permalink: /apps/freedom/
 <script>
 (function () {
   'use strict';
-  var BASE = null, TICKERS = [];
+  // BASE guarda tudo o que já foi baixado, de todas as bolsas, com o ticker
+  // como chave; TICKERS é só a bolsa que está na tela, em ordem de liquidez.
+  var BASE = {}, TICKERS = [], bolsaAtual = 'B3', baixadas = {};
+  var ARQUIVOS = {
+    'B3': 'dados.json', 'NYSE': 'dados-nyse.json', 'NASDAQ': 'dados-nasdaq.json'
+  };
+  var CHAMADAS = {
+    'B3': 'Empresa boa é a que lucra, cresce e não vive de dívida. {n} ações ' +
+          'da B3, com o histórico anual direto dos balanços entregues à CVM.',
+    'NYSE': 'Empresa boa é a que lucra, cresce e não vive de dívida. {n} ' +
+            'empresas da NYSE, pelos mesmos critérios, com o histórico anual ' +
+            'montado a partir dos balanços entregues à SEC.',
+    'NASDAQ': 'Empresa boa é a que lucra, cresce e não vive de dívida. {n} ' +
+              'empresas da NASDAQ, pelos mesmos critérios, com o histórico ' +
+              'anual montado a partir dos balanços entregues à SEC.'
+  };
   var SERIES = [
     ['patrimonio', 'Patrimônio', '#3b5fa8'],
     ['receita',    'Receita',    '#7b5ea7'],
@@ -253,6 +277,8 @@ permalink: /apps/freedom/
   var elSetor = document.getElementById('fr-setor');
   var elVeredito = document.getElementById('fr-veredito');
   var elNegocios = document.getElementById('fr-negocios');
+  var elBolsa = document.getElementById('fr-bolsa');
+  var elChamada = document.getElementById('fr-chamada');
 
   function selosInternos(d) {
     var posicao = d.posicao
@@ -453,6 +479,9 @@ permalink: /apps/freedom/
     if (s.pais && s.pais !== 'Brasil') {
       fatos.push('<span class="fato"><b>origem</b> ' + esc(s.pais) + '</span>');
     }
+    if (s.industria) {
+      fatos.push('<span class="fato"><b>ramo</b> ' + esc(s.industria) + '</span>');
+    }
     if (s.sede) {
       fatos.push('<span class="fato"><b>sede</b> ' + esc(s.sede) + '</span>');
     }
@@ -552,7 +581,9 @@ permalink: /apps/freedom/
     var indicadores = '';
     var chaves = Object.keys(d.indicadores || {});
     if (chaves.length) {
-      indicadores = '<div class="painel"><h3>Indicadores de hoje (Fundamentus)</h3>' +
+      indicadores = '<div class="painel"><h3>Indicadores de hoje (' +
+        (d.bolsa === 'B3' ? 'Fundamentus' : 'preço de hoje sobre o último exercício') +
+        ')</h3>' +
         '<div class="indicadores">' + chaves.map(function (k) {
           return '<div class="indicador"><b>' + num(d.indicadores[k], 2) +
                  '</b><span>' + esc(k) + '</span></div>';
@@ -569,8 +600,16 @@ permalink: /apps/freedom/
     }).join('');
 
     var cotacao = d.cotacao
-      ? '<div class="cotacao">R$ ' + num(d.cotacao, 2) + ' &middot; coletado em ' +
-        esc(d.coletado_em || '-') + '</div>' : '';
+      ? '<div class="cotacao">' + esc(d.moeda) + ' ' + num(d.cotacao, 2) +
+        ' &middot; coletado em ' + esc(d.coletado_em || '-') + '</div>' : '';
+
+    var fonte = d.bolsa === 'B3'
+      ? 'Série anual e cadastro: CVM (dados.cvm.gov.br). Cotação e ' +
+        'indicadores do dia: fundamentus.com.br. Código CVM ' + esc(d.codigo_cvm) + '.'
+      : 'Série anual montada a partir dos balanços trimestrais entregues à SEC ' +
+        '(sec.gov), somando os quatro trimestres de cada exercício fiscal. ' +
+        'Cotação e volume: fechamento diário da ' + esc(d.bolsa) + '. CIK ' +
+        esc(d.cik) + '.';
 
     elDetalhe.innerHTML =
       '<a class="voltar" href="#">&larr; todas as ações</a>' +
@@ -583,7 +622,8 @@ permalink: /apps/freedom/
       blocoSobre(d) +
       blocoDividendos(d) +
       indicadores +
-      '<div class="painel"><h3>Histórico anual (R$ milhões)</h3><div class="rolagem">' +
+      '<div class="painel"><h3>Histórico anual (' + esc(d.moeda) +
+      ' milhões)</h3><div class="rolagem">' +
       '<table><thead><tr><th>ANO</th><th>Patrimônio</th><th>Receita</th><th>Lucro</th>' +
       '<th>Margem</th><th>ROE</th><th>Caixa</th>' +
       (eBanco ? '<th>Ativo</th><th>Alavanc.</th>'
@@ -591,8 +631,7 @@ permalink: /apps/freedom/
       '</tr></thead><tbody>' + corpo + '</tbody></table></div></div>' +
       '<div class="painel"><h3>Evolução</h3>' + grafico(d.linhas) + '</div>' +
       '<div class="painel"><h3>Checklist</h3><div class="sinais">' + sinais + '</div>' + notas + '</div>' +
-      '<p class="fonte">Série anual e cadastro: CVM (dados.cvm.gov.br). Cotação e ' +
-      'indicadores do dia: fundamentus.com.br. Código CVM ' + esc(d.codigo_cvm) + '.<br>' +
+      '<p class="fonte">' + fonte + '<br>' +
       'Isto não é recomendação de compra ou venda: é o retrato do histórico da empresa.</p>';
   }
 
@@ -611,8 +650,8 @@ permalink: /apps/freedom/
     try { window.localStorage.setItem(CHAVE, JSON.stringify(lista)); } catch (e) {}
   }
 
-  function reais(v) {
-    return 'R$ ' + v.toLocaleString('pt-BR',
+  function dinheiro(v, moeda) {
+    return moeda + ' ' + v.toLocaleString('pt-BR',
       { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
@@ -624,17 +663,17 @@ permalink: /apps/freedom/
     return d.cotacao * dy / 100;
   }
 
-  function montarSimulador() {
-    var carteira = lerCarteira().filter(function (p) { return BASE[p.t]; });
-    var totalInvestido = 0, totalAno = 0, semEstimativa = 0;
+  // real e dólar não somam: cada moeda ganha sua tabela e seus totais
+  function blocoMoeda(itens, moeda, mostrarTitulo) {
+    var totalInvestido = 0, totalAno = 0;
 
-    var linhas = carteira.map(function (p, i) {
-      var d = BASE[p.t];
+    var linhas = itens.map(function (item) {
+      var d = BASE[item.p.t];
       var dps = porAcao(d);
-      var investido = (d.cotacao || 0) * p.q;
-      var ano = dps === null ? null : dps * p.q;
+      var investido = (d.cotacao || 0) * item.p.q;
+      var ano = dps === null ? null : dps * item.p.q;
       totalInvestido += investido;
-      if (ano === null) { semEstimativa++; } else { totalAno += ano; }
+      if (ano !== null) { totalAno += ano; }
       var dv = d.dividendos || {};
       var selo = dv.situacao === 'bom'
         ? '<span class="pago">BOA PAGADORA</span>'
@@ -642,46 +681,71 @@ permalink: /apps/freedom/
             ? '<span class="posicao" title="' + esc(dv.titulo) + '">irregular</span>'
             : '');
       return '<tr>' +
-        '<td class="ano"><a href="#/' + p.t + '">' + esc(p.t) + '</a> ' + selo + '</td>' +
-        '<td>' + p.q.toLocaleString('pt-BR') + '</td>' +
-        '<td>' + (d.cotacao ? reais(d.cotacao) : '&mdash;') + '</td>' +
-        '<td>' + reais(investido) + '</td>' +
-        '<td>' + (dps === null ? '<span class="vazio">&mdash;</span>' : reais(dps)) + '</td>' +
+        '<td class="ano"><a href="#/' + item.p.t + '">' + esc(item.p.t) + '</a> ' + selo + '</td>' +
+        '<td>' + item.p.q.toLocaleString('pt-BR') + '</td>' +
+        '<td>' + (d.cotacao ? dinheiro(d.cotacao, moeda) : '&mdash;') + '</td>' +
+        '<td>' + dinheiro(investido, moeda) + '</td>' +
+        '<td>' + (dps === null ? '<span class="vazio">&mdash;</span>'
+                               : dinheiro(dps, moeda)) + '</td>' +
         '<td>' + (ano === null ? '<span class="vazio">sem estimativa</span>'
-                               : '<b>' + reais(ano) + '</b>') + '</td>' +
+                               : '<b>' + dinheiro(ano, moeda) + '</b>') + '</td>' +
         '<td>' + (ano === null ? '<span class="vazio">&mdash;</span>'
-                               : reais(ano / 12)) + '</td>' +
-        '<td><button class="tirar" data-tirar="' + i + '" title="remover">&times;</button></td>' +
+                               : dinheiro(ano / 12, moeda)) + '</td>' +
+        '<td><button class="tirar" data-tirar="' + item.i + '" title="remover">&times;</button></td>' +
         '</tr>';
     }).join('');
 
+    var yieldCarteira = totalInvestido ? totalAno / totalInvestido * 100 : 0;
+    return (mostrarTitulo
+        ? '<div class="subtitulo-bloco">Em ' + esc(moeda) + '</div>' : '') +
+      '<div class="totais">' +
+      '<div class="total destaque"><b>' + dinheiro(totalAno, moeda) + '</b>' +
+      '<span>dividendos por ano</span></div>' +
+      '<div class="total destaque"><b>' + dinheiro(totalAno / 12, moeda) + '</b>' +
+      '<span>média por mês</span></div>' +
+      '<div class="total"><b>' + dinheiro(totalInvestido, moeda) + '</b>' +
+      '<span>valor da carteira</span></div>' +
+      '<div class="total"><b>' + num(yieldCarteira, 2) + '%</b>' +
+      '<span>yield da carteira</span></div>' +
+      '</div>' +
+      '<div class="rolagem" style="margin-top:12px"><table><thead><tr>' +
+      '<th>PAPEL</th><th>QTD</th><th>PREÇO</th><th>INVESTIDO</th>' +
+      '<th>DIV/AÇÃO ANO</th><th>POR ANO</th><th>POR MÊS</th><th></th>' +
+      '</tr></thead><tbody>' + linhas + '</tbody>' +
+      '<tfoot><tr><td class="ano">TOTAL</td><td></td><td></td>' +
+      '<td>' + dinheiro(totalInvestido, moeda) + '</td><td></td>' +
+      '<td>' + dinheiro(totalAno, moeda) + '</td>' +
+      '<td>' + dinheiro(totalAno / 12, moeda) + '</td><td></td>' +
+      '</tr></tfoot></table></div>';
+  }
+
+  function montarSimulador() {
+    // o índice original é o que o botão de remover usa, então ele viaja junto
+    var carteira = lerCarteira().map(function (p, i) { return { p: p, i: i }; })
+      .filter(function (item) { return BASE[item.p.t]; });
+
+    var moedas = [];
+    carteira.forEach(function (item) {
+      var m = BASE[item.p.t].moeda;
+      if (moedas.indexOf(m) === -1) { moedas.push(m); }
+    });
+
+    var semEstimativa = carteira.filter(function (item) {
+      return porAcao(BASE[item.p.t]) === null;
+    }).length;
+
     var tabela = carteira.length
-      ? '<div class="rolagem"><table><thead><tr>' +
-        '<th>PAPEL</th><th>QTD</th><th>PREÇO</th><th>INVESTIDO</th>' +
-        '<th>DIV/AÇÃO ANO</th><th>POR ANO</th><th>POR MÊS</th><th></th>' +
-        '</tr></thead><tbody>' + linhas + '</tbody>' +
-        '<tfoot><tr><td class="ano">TOTAL</td><td></td><td></td>' +
-        '<td>' + reais(totalInvestido) + '</td><td></td>' +
-        '<td>' + reais(totalAno) + '</td><td>' + reais(totalAno / 12) + '</td><td></td>' +
-        '</tr></tfoot></table></div>'
+      ? moedas.map(function (m) {
+          return blocoMoeda(carteira.filter(function (item) {
+            return BASE[item.p.t].moeda === m;
+          }), m, moedas.length > 1);
+        }).join('<div style="height:18px"></div>')
       : '<p class="vazia">Sua carteira está vazia. Adicione um papel acima.</p>';
 
-    var yieldCarteira = totalInvestido ? totalAno / totalInvestido * 100 : 0;
-    var totais = carteira.length
-      ? '<div class="totais">' +
-        '<div class="total destaque"><b>' + reais(totalAno) + '</b>' +
-        '<span>dividendos por ano</span></div>' +
-        '<div class="total destaque"><b>' + reais(totalAno / 12) + '</b>' +
-        '<span>média por mês</span></div>' +
-        '<div class="total"><b>' + reais(totalInvestido) + '</b>' +
-        '<span>valor da carteira</span></div>' +
-        '<div class="total"><b>' + num(yieldCarteira, 2) + '%</b>' +
-        '<span>yield da carteira</span></div>' +
-        '</div>' : '';
-
-    var opcoes = TICKERS.filter(function (t) { return BASE[t].liquidez > 0; })
+    var opcoes = Object.keys(BASE).filter(function (t) { return BASE[t].liquidez > 0; })
       .map(function (t) {
-        return '<option value="' + esc(t) + '">' + esc(BASE[t].nome) + '</option>';
+        return '<option value="' + esc(t) + '">' + esc(BASE[t].nome) +
+          ' · ' + esc(BASE[t].bolsa) + '</option>';
       }).join('');
 
     var alerta = semEstimativa
@@ -693,16 +757,16 @@ permalink: /apps/freedom/
       '<h2 style="margin:0 0 4px;font-size:22px;font-weight:700">' +
       'Simulador de dividendos</h2>' +
       '<p class="quem" style="margin:0 0 14px">Liste o que você tem e veja quanto ' +
-      'isso renderia por ano e por mês.</p>' +
+      'isso renderia por ano e por mês. Vale para as três bolsas: cada moeda ' +
+      'tem sua conta, sem conversão.</p>' +
       '<div class="painel"><h3>Adicionar papel</h3>' +
       '<div class="form-carteira">' +
       '<input type="text" id="fr-papel" list="fr-tickers" autocomplete="off" ' +
-      'placeholder="ticker, ex.: WEGE3">' +
+      'placeholder="ticker, ex.: WEGE3 ou AAPL">' +
       '<datalist id="fr-tickers">' + opcoes + '</datalist>' +
       '<input type="number" id="fr-qtd" min="1" step="1" placeholder="quantidade">' +
       '<button class="botao" id="fr-add">Adicionar</button>' +
       '</div></div>' +
-      totais +
       '<div class="painel"><h3>Sua carteira</h3>' + tabela + alerta + '</div>' +
       '<p class="fonte">A estimativa usa o <b>dividend yield dos últimos 12 meses</b> ' +
       'aplicado ao preço atual: dividendo por ação = preço &times; DY. É uma projeção ' +
@@ -741,13 +805,21 @@ permalink: /apps/freedom/
 
   function rota() {
     var t = (location.hash || '').replace(/^#\/?/, '').toUpperCase();
+    // link direto para um papel de outra bolsa (ou a carteira do simulador,
+    // que mistura bolsas): aí vale baixar o resto e refazer a rota
+    if (!tudoBaixado() && (t === 'SIMULADOR' || (t && !BASE[t]))) {
+      carregarTudo().then(rota);
+      return;
+    }
     elLista.hidden = true;
     elDetalhe.hidden = true;
     elSimulador.hidden = true;
-    if (t === 'SIMULADOR' && BASE) {
+    if (t === 'SIMULADOR') {
       montarSimulador();
       elSimulador.hidden = false;
-    } else if (t && BASE && BASE[t]) {
+    } else if (t && BASE[t]) {
+      // voltar de um papel da NYSE tem que cair na lista da NYSE
+      if (BASE[t].bolsa !== bolsaAtual) { trocarBolsa(BASE[t].bolsa); }
       montarDetalhe(t);
       elDetalhe.hidden = false;
     } else {
@@ -756,15 +828,46 @@ permalink: /apps/freedom/
     window.scrollTo(0, 0);
   }
 
-  fetch('dados.json').then(function (r) { return r.json(); }).then(function (base) {
-    BASE = base;
-    TICKERS = Object.keys(base).sort(function (a, b) {
-      var da = base[a], db = base[b];
+  // cada bolsa tem seu arquivo e só é baixada quando alguém precisa dela:
+  // são megabytes por base, e quase todo mundo entra para ver a B3
+  function carregar(bolsa) {
+    if (!baixadas[bolsa]) {
+      baixadas[bolsa] = fetch(ARQUIVOS[bolsa])
+        .then(function (r) { return r.json(); })
+        .then(function (base) {
+          Object.keys(base).forEach(function (t) {
+            var d = base[t];
+            // a base da B3 nasceu antes do seletor e não traz esses campos
+            d.bolsa = d.bolsa || 'B3';
+            d.moeda = d.moeda || 'R$';
+            BASE[t] = d;
+          });
+          return base;
+        });
+    }
+    return baixadas[bolsa];
+  }
+
+  function carregarTudo() {
+    return Promise.all(Object.keys(ARQUIVOS).map(carregar));
+  }
+
+  function tudoBaixado() {
+    return Object.keys(ARQUIVOS).every(function (b) { return baixadas[b]; });
+  }
+
+  function listarBolsa(bolsa) {
+    TICKERS = Object.keys(BASE).filter(function (t) {
+      return BASE[t].bolsa === bolsa;
+    }).sort(function (a, b) {
+      var da = BASE[a], db = BASE[b];
       if (da.liquidez !== db.liquidez) { return db.liquidez - da.liquidez; }
       return a < b ? -1 : 1;
     });
+
     var setores = {};
-    TICKERS.forEach(function (t) { setores[base[t].setor] = 1; });
+    TICKERS.forEach(function (t) { setores[BASE[t].setor] = 1; });
+    elSetor.innerHTML = '<option value="">todos os setores</option>';
     Object.keys(setores).sort(function (a, b) {
       return limpar(a) < limpar(b) ? -1 : 1;
     }).forEach(function (s) {
@@ -772,18 +875,34 @@ permalink: /apps/freedom/
       o.value = s; o.textContent = s;
       elSetor.appendChild(o);
     });
+
+    elChamada.textContent = CHAMADAS[bolsa].replace('{n}', TICKERS.length);
     montarCartoes();
-    rota();
-  }).catch(function (erro) {
-    elCartoes.innerHTML = '<p class="carregando">Não consegui carregar os dados. ' +
-      esc(erro.message) + '</p>';
-  });
+  }
+
+  function trocarBolsa(bolsa) {
+    bolsaAtual = bolsa;
+    if (elBolsa.value !== bolsa) { elBolsa.value = bolsa; }
+    elCartoes.innerHTML = '<p class="carregando">carregando os dados…</p>';
+    elConta.textContent = '…';
+    return carregar(bolsa).then(function () {
+      // se o visitante trocou de bolsa de novo enquanto esta baixava,
+      // quem manda é a última escolha
+      if (bolsaAtual === bolsa) { listarBolsa(bolsa); }
+    }).catch(function (erro) {
+      elCartoes.innerHTML = '<p class="carregando">Não consegui carregar os dados. ' +
+        esc(erro.message) + '</p>';
+    });
+  }
 
   elBusca.addEventListener('input', aplicarFiltro);
   elSetor.addEventListener('change', aplicarFiltro);
   elVeredito.addEventListener('change', aplicarFiltro);
   elNegocios.addEventListener('change', aplicarFiltro);
+  elBolsa.addEventListener('change', function () { trocarBolsa(elBolsa.value); });
   window.addEventListener('hashchange', rota);
+
+  trocarBolsa(elBolsa.value || 'B3').then(rota);
 })();
 </script>
 {% endraw %}
