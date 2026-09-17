@@ -296,9 +296,12 @@ permalink: /apps/freedom/
   }
 
   function marca(t, d, grande) {
+    // os logos da B3 são SVG desenhados à mão; os das bolsas americanas saem
+    // da coleção pública em PNG, montados por _scripts/gerar_logos_eua.py
+    var arquivo = 'logos/' + esc(t) + (d.bolsa === 'B3' ? '.svg' : '.png');
     return '<span class="marca' + (grande ? ' grande' : '') +
       '" style="background:' + esc(d.cor) + '">' + esc(t.slice(0, 4)) +
-      '<img src="logos/' + esc(t) + '.svg" alt="" loading="lazy" ' +
+      '<img src="' + arquivo + '" alt="" loading="lazy" ' +
       'onerror="this.remove()"></span>';
   }
 
