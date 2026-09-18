@@ -2,6 +2,12 @@
 layout: modern-default
 title: Freedom
 permalink: /apps/freedom/
+description: >-
+  Empresa boa é a que lucra, cresce e não vive de dívida. 2.383 empresas da B3,
+  da NYSE e da NASDAQ, com 11 anos de balanço direto da CVM e da SEC.
+image: /assets/freedom/og.png
+icone: /assets/freedom/logo.svg
+icone_png: /assets/freedom/icone-180.png
 ---
 {% raw %}
 <style>
@@ -20,6 +26,9 @@ permalink: /apps/freedom/
 /* a bolsa não é um filtro da lista: ela troca a base inteira. Por isso fica
    sozinha, acima da busca, na mesma largura dos outros campos. */
 #fr .bolsa { margin: 14px 0 10px; }
+#fr .marca-titulo { display: flex; align-items: center; gap: 11px; margin-bottom: 4px; }
+#fr .marca-titulo img { border-radius: 9px; flex: 0 0 auto; }
+#fr .marca-titulo h1 { margin: 0; }
 #fr .contador { color: var(--fraco); font-size: 13px; margin: 12px 0; }
 #fr .lista { display: grid; gap: 10px; grid-template-columns: 1fr; }
 @media (min-width: 700px)  { #fr .lista { grid-template-columns: 1fr 1fr; } }
@@ -203,7 +212,10 @@ permalink: /apps/freedom/
 
 <div id="fr" class="px-6 py-8">
   <div id="fr-lista">
-    <h1 class="text-2xl font-bold mb-1">Freedom</h1>
+    <div class="marca-titulo">
+      <img src="/assets/freedom/logo.svg" alt="" width="40" height="40">
+      <h1 class="text-2xl font-bold">Freedom</h1>
+    </div>
     <p class="text-gray-500 text-sm mb-4" id="fr-chamada">
       Empresa boa é a que lucra, cresce e não vive de dívida. 693 ações da B3,
       com o histórico anual direto dos balanços entregues à CVM.
