@@ -23,7 +23,7 @@ email:
 description: >- # this means to ignore newlines until "baseurl:"
   Tecnologia, Inovação e Negócios
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://yurisilva.com.br" # usado pelo seo-tag para montar og:image e canonical
 twitter_username: yurisilvapi
 github_username:  yuripinto
 permalink: /blog/:slug
