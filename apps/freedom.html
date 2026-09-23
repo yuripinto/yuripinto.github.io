@@ -208,6 +208,57 @@ icone_png: /assets/freedom/icone-180.png
 #fr .tirar:hover { color: #c0392b; }
 #fr tfoot td { font-weight: 700; border-top: 2px solid #cfd9e8; background: #f7f9fc; }
 #fr .vazia { color: var(--fraco); padding: 22px 0; text-align: center; font-size: 14px; }
+/* ---- Tese de Investimentos: uma página só dela, aberta a partir da ficha */
+#fr .tese-topo { border-bottom: 1px solid var(--borda); padding-bottom: 14px; margin-bottom: 4px; }
+#fr .tese-rotulo { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px;
+                   color: #2b6cb0; font-weight: 700; margin-bottom: 8px; }
+#fr .tese-abertura { font-size: 17px; line-height: 1.6; color: var(--tinta); margin: 16px 0 0; }
+#fr .tese-veredito { font-size: 16px; line-height: 1.6; margin: 10px 0 0; font-weight: 600; }
+#fr .tese-veredito.bom { color: #1e5c3a; }
+#fr .tese-veredito.atencao { color: #7a5a12; }
+#fr .tese-veredito.ruim { color: #8c2b2b; }
+/* escopado em #fr-tese de propósito: solta, esta regra passaria por cima de
+   .div-texto e .sobre p, que são parágrafos de painel da ficha */
+#fr-tese .painel p { margin: 0 0 11px; font-size: 14.5px; line-height: 1.62; color: #3a4553; }
+#fr-tese .painel p:last-child { margin-bottom: 0; }
+#fr-tese .numero-forte { font-weight: 700; color: var(--tinta); }
+#fr .lista-tese { margin: 0; padding: 0; list-style: none; }
+#fr .lista-tese li { position: relative; padding: 7px 0 7px 22px; font-size: 14px;
+                     line-height: 1.55; color: #3a4553; border-bottom: 1px solid #f0f3f7; }
+#fr .lista-tese li:last-child { border-bottom: 0; }
+#fr .lista-tese li::before { content: "\2014"; position: absolute; left: 0; color: #9fb3c8; }
+#fr .lista-tese li b { color: var(--tinta); }
+#fr .sem-alvo { background: #f7f9fc; border: 1px solid #e3e8ee; border-left: 4px solid #2b6cb0;
+                border-radius: 10px; padding: 16px; margin-top: 14px; }
+#fr .sem-alvo h3 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase;
+                   letter-spacing: .8px; color: #2b6cb0; font-weight: 700; }
+#fr .sem-alvo p { margin: 0 0 10px; font-size: 14px; line-height: 1.62; color: #3a4553; }
+#fr .sem-alvo p:last-child { margin-bottom: 0; }
+#fr .papel-carteira { border-radius: 10px; padding: 14px 16px; font-size: 14.5px; line-height: 1.6; }
+#fr .papel-carteira.bom { background:#e6f4ec; border:1px solid #b7ddc7; color:#1e5c3a; }
+#fr .papel-carteira.atencao { background:#fdf4e3; border:1px solid #eed9a8; color:#7a5a12; }
+#fr .papel-carteira.ruim { background:#fbeaea; border:1px solid #eec2c2; color:#8c2b2b; }
+#fr .alerta-grave { background:#fbeaea; border:1px solid #eec2c2; color:#8c2b2b;
+                    border-radius:10px; padding:12px 14px; font-size:14px;
+                    line-height:1.55; margin-top:14px; }
+#fr .tese-acoes { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+#fr .tese-data { color: var(--fraco); font-size: 12.5px; margin-top: 10px; }
+/* são só quatro colunas: esticadas na largura do painel elas ficam perdidas */
+#fr .tese-comparativo table { max-width: 620px; }
+#fr .tese-sumario { background:#fff; border:1px solid var(--borda); border-radius:12px;
+                    padding:14px 16px; margin-top:14px; }
+#fr .tese-sumario h3 { margin:0 0 8px; font-size:13px; text-transform:uppercase;
+                       letter-spacing:.8px; color:#5b6672; font-weight:700; }
+#fr .tese-sumario ol { margin:0; padding:0 0 0 20px; columns:1; font-size:14px;
+                       color: var(--fraco); }
+@media (min-width: 700px) { #fr .tese-sumario ol { columns:2; column-gap:26px; } }
+#fr .tese-sumario li { padding:3px 0; break-inside:avoid; }
+#fr .tese-sumario button { background:none; border:0; padding:0; cursor:pointer;
+                           font:inherit; font-size:14px; color:#2b6cb0;
+                           text-align:left; }
+#fr .tese-sumario button:hover { text-decoration:underline; }
+/* o cabeçalho da tese usa o nome da empresa, que é bem mais longo que o ticker */
+#fr .tese-topo .cabecalho h2 { font-size:19px; line-height:1.3; }
 </style>
 
 <div id="fr" class="px-6 py-8">
@@ -248,6 +299,7 @@ icone_png: /assets/freedom/icone-180.png
   </div>
 
   <div id="fr-detalhe" hidden></div>
+  <div id="fr-tese" hidden></div>
   <div id="fr-simulador" hidden></div>
 </div>
 
@@ -283,6 +335,7 @@ icone_png: /assets/freedom/icone-180.png
   var elLista = document.getElementById('fr-lista');
   var elSimulador = document.getElementById('fr-simulador');
   var elDetalhe = document.getElementById('fr-detalhe');
+  var elTese = document.getElementById('fr-tese');
   var elCartoes = document.getElementById('fr-cartoes');
   var elConta = document.getElementById('fr-conta');
   var elBusca = document.getElementById('fr-busca');
@@ -634,6 +687,7 @@ icone_png: /assets/freedom/icone-180.png
       '<div><h2>' + esc(t) + '</h2><div class="sub">' + esc(d.nome) + ' &middot; ' +
       esc(d.setor) + '</div>' + cotacao + '</div></div>' +
       '<div class="resumo ' + d.veredito + '">' + esc(d.resumo) + '</div>' +
+      botaoTese(t, d) +
       blocoSobre(d) +
       blocoDividendos(d) +
       indicadores +
@@ -648,6 +702,807 @@ icone_png: /assets/freedom/icone-180.png
       '<div class="painel"><h3>Checklist</h3><div class="sinais">' + sinais + '</div>' + notas + '</div>' +
       '<p class="fonte">' + fonte + '<br>' +
       'Isto não é recomendação de compra ou venda: é o retrato do histórico da empresa.</p>';
+  }
+
+  // a tese é uma página à parte, aberta pelo botão da ficha. Por ora ela
+  // existe só para as empresas da B3, que são as que têm cadastro completo
+  // na CVM (controle, controladores, situação do emissor).
+  function botaoTese(t, d) {
+    if (d.bolsa !== 'B3') { return ''; }
+    return '<a class="botao" href="#/' + esc(t) + '/tese">' +
+      'Ver a Tese de Investimentos &rarr;</a>';
+  }
+
+  // ---- tese de investimentos
+  //
+  // A tese sai do mesmo balanço que monta a ficha: nada aqui é opinião digitada
+  // à mão, é leitura dos onze anos que a CVM publicou. De propósito não tem
+  // preço-alvo nem "valor justo" — balanço responde se a empresa presta, não
+  // quanto ela deveria custar hoje.
+
+  var RISCO_SETOR = [
+    [/petr[oó]leo|petroqu[ií]m|g[aá]s|minera|sider|metalur|papel e celulose|agro|a[cç][uú]car|[aá]lcool|fertiliz|madeira|borracha/i,
+     'O preço de uma commodity manda no resultado',
+     'A receita depende de um preço que a empresa não controla e que anda em ' +
+     'ciclo. Ano excelente e ano sofrido vêm de fora, não da gestão.'],
+    [/energia el[eé]trica|[aá]gua e saneamento|g[aá]s distribu|rodovi|concess/i,
+     'Quem define a tarifa é o regulador',
+     'Reajuste, revisão tarifária e regra de concessão mexem no lucro sem que ' +
+     'a empresa tenha voto. Renovação de concessão é sempre um ponto de virada.'],
+    [/telecomunica/i,
+     'Setor que exige investimento sem parar',
+     'Rede nova a cada geração de tecnologia consome caixa todo ano só para a ' +
+     'empresa continuar onde está.'],
+    [/constru[cç]|incorpora|imobili/i,
+     'Juro alto trava o negócio',
+     'Venda financiada e estoque parado pesam quando o crédito encarece. É um ' +
+     'setor que costuma ir de excelente a péssimo em poucos anos.'],
+    [/a[eé]rea|transporte a[eé]reo|avia/i,
+     'Combustível e câmbio decidem o ano',
+     'Custo em dólar, receita em real e margem estreita: pouca folga para erro.'],
+    [/com[eé]rcio|varej|vestu[aá]rio|tecid|cal[cç]ad|eletrodom/i,
+     'Depende do bolso do consumidor',
+     'Renda, emprego e juro do crediário chegam no caixa rápido, para cima e ' +
+     'para baixo.'],
+    [/sa[uú]de|hospital|medicamen|farmac/i,
+     'Custo médico sobe mais rápido que o reajuste',
+     'Sinistralidade, tabela e regulação apertam a margem com frequência.'],
+    [/educa/i,
+     'Turma nova todo ano e regra pública no meio',
+     'FIES, Prouni e evasão mudam a receita sem aviso.']
+  ];
+
+  function mediaDe(vals) {
+    var v = vals.filter(function (x) { return x !== null && x !== undefined; });
+    if (!v.length) { return null; }
+    return v.reduce(function (a, b) { return a + b; }, 0) / v.length;
+  }
+
+  // crescimento ao ano entre o primeiro e o último valor cheio da série. Só faz
+  // sentido quando as duas pontas são positivas: de prejuízo para lucro não
+  // existe taxa de crescimento, existe virada.
+  function cagr(linhas, campo) {
+    var v = linhas.filter(function (l) {
+      return l[campo] !== null && l[campo] !== undefined;
+    });
+    if (v.length < 2) { return null; }
+    var ini = v[0], fim = v[v.length - 1];
+    if (ini[campo] <= 0 || fim[campo] <= 0) { return null; }
+    var anos = fim.ano - ini.ano;
+    if (anos <= 0) { return null; }
+    return (Math.pow(fim[campo] / ini[campo], 1 / anos) - 1) * 100;
+  }
+
+  function multiplicou(linhas, campo) {
+    var v = linhas.filter(function (l) {
+      return l[campo] !== null && l[campo] !== undefined;
+    });
+    if (v.length < 2) { return null; }
+    var a = v[0][campo], b = v[v.length - 1][campo];
+    if (a <= 0 || b <= 0) { return null; }
+    return b / a;
+  }
+
+  function analise(d) {
+    var L = d.linhas, n = L.length, a = {};
+    a.n = n;
+    a.de = L[0].ano;
+    a.ate = L[n - 1].ano;
+    a.ult = L[n - 1];
+    a.banco = !!(d.perfil && d.perfil !== 'operacional');
+    var comLucro = L.filter(function (l) {
+      return l.lucro !== null && l.lucro !== undefined;
+    });
+    a.anosMedidos = comLucro.length;
+    a.anosPositivos = comLucro.filter(function (l) { return l.lucro > 0; }).length;
+    a.prejuizos = comLucro.filter(function (l) { return l.lucro < 0; })
+      .map(function (l) { return l.ano; });
+    // ano de lucro zerado não é lucro nem prejuízo, mas continua sendo um ano
+    // em que a empresa não ganhou nada — ele precisa aparecer na frase
+    a.semLucro = comLucro.filter(function (l) { return l.lucro <= 0; })
+      .map(function (l) { return l.ano; });
+    a.falha = a.prejuizos.length === a.semLucro.length ? 'com prejuízo em '
+                                                       : 'sem lucro em ';
+    a.lucroAcumulado = comLucro.length
+      ? comLucro.reduce(function (s, l) { return s + l.lucro; }, 0) : null;
+    a.cagrReceita = cagr(L, 'receita');
+    a.cagrLucro = cagr(L, 'lucro');
+    a.cagrPl = cagr(L, 'patrimonio');
+    a.multReceita = multiplicou(L, 'receita');
+    a.multLucro = multiplicou(L, 'lucro');
+    a.margemMedia = mediaDe(L.map(function (l) { return l.margem; }));
+    a.roeMedio = mediaDe(L.map(function (l) { return l.roe; }));
+    a.plNegativo = a.ult.patrimonio !== null && a.ult.patrimonio < 0;
+    a.emCrise = !!(d.sobre && d.sobre.situacao_emissor &&
+                   d.sobre.situacao_emissor.indexOf('FASE') === -1);
+    a.estatal = !!(d.sobre && d.sobre.rotulo_controle === 'estatal');
+    return a;
+  }
+
+  // ---- os parágrafos
+  //
+  // A ordem das seções segue a de um relatório de tese: opinião, último
+  // exercício, modelo de negócio, análise financeira, endividamento,
+  // governança, perspectivas, riscos, o que monitorar e conclusão. Onde um
+  // relatório de casa de análise põe valuation e preço-teto, aqui entra a
+  // explicação de por que esses dois não existem nesta página.
+
+  function variacao(atual, anterior) {
+    if (atual === null || atual === undefined) { return null; }
+    if (anterior === null || anterior === undefined || anterior === 0) { return null; }
+    return (atual - anterior) / Math.abs(anterior) * 100;
+  }
+
+  // direção dos últimos anos contra os anteriores: serve para dizer para onde
+  // a empresa vinha andando, que é diferente de projetar para onde ela vai
+  function tendencia(linhas, campo, janela) {
+    var v = linhas.filter(function (l) {
+      return l[campo] !== null && l[campo] !== undefined;
+    });
+    var j = janela || 3;
+    if (v.length < j * 2) { return null; }
+    function med(lista) {
+      return lista.reduce(function (s, l) { return s + l[campo]; }, 0) / lista.length;
+    }
+    var recentes = med(v.slice(-j)), antes = med(v.slice(-j * 2, -j));
+    if (antes === 0) { return null; }
+    return { recentes: recentes, antes: antes, variacao: (recentes - antes) / Math.abs(antes) * 100 };
+  }
+
+  function aberturaTese(d, a) {
+    var f = [];
+    if (a.anosMedidos) {
+      if (a.anosPositivos === a.anosMedidos) {
+        f.push('lucrou nos ' + a.anosMedidos + ' anos da série, sem falhar um');
+      } else if (a.anosPositivos === 0) {
+        f.push('não teve um único ano de lucro em ' + a.anosMedidos + ' anos de balanço');
+      } else {
+        f.push('lucrou em ' + a.anosPositivos + ' dos ' + a.anosMedidos +
+               ' anos, ' + a.falha + a.semLucro.join(', '));
+      }
+    }
+    if (a.cagrReceita !== null) {
+      f.push(a.cagrReceita >= 0
+        ? 'cresceu a receita ' + num(a.cagrReceita, 1) + '% ao ano'
+        : 'viu a receita encolher ' + num(Math.abs(a.cagrReceita), 1) + '% ao ano');
+    } else if (a.multReceita === null && a.ult.receita !== null) {
+      f.push('fechou ' + a.ate + ' com receita de ' + esc(d.moeda) + ' ' +
+             moeda(a.ult.receita) + ' milhões');
+    }
+    if (a.plNegativo) {
+      f.push('chegou em ' + a.ate + ' com patrimônio líquido negativo');
+    } else if (a.banco) {
+      if (a.ult.alavancagem) {
+        f.push('opera com ativo de ' + num(a.ult.alavancagem, 1) +
+               ' vezes o patrimônio');
+      }
+    } else if (a.ult.caixa_liquido !== null && a.ult.caixa_liquido !== undefined) {
+      f.push(a.ult.caixa_liquido >= 0
+        ? 'fechou ' + a.ate + ' com mais caixa do que dívida'
+        : 'fechou ' + a.ate + ' devendo ' + esc(d.moeda) + ' ' +
+          moeda(-a.ult.caixa_liquido) + ' milhões além do que tem em caixa');
+    }
+    if (!f.length) { return esc(d.nome) + ' tem série curta demais para uma leitura firme.'; }
+    return esc(d.nome) + ' ' + f.join('; ') + '.';
+  }
+
+  var VEREDITO_TESE = {
+    bom: 'É o tipo de empresa que se compra para ser sócio: entra na carteira, ' +
+         'recebe aporte de tempos em tempos e não se olha a cotação todo dia.',
+    atencao: 'Dá para ser sócio, com posição menor e com o balanço na mão todo ' +
+             'ano: tem ponto aqui que ainda não fechou.',
+    ruim: 'Balanço assim não faz sócio. Cara ou barata, a empresa é a mesma — ' +
+          'o problema não está no preço.'
+  };
+
+  function blocoOpiniao(d, a) {
+    return '<p class="tese-abertura">' + aberturaTese(d, a) + '</p>' +
+      '<p class="tese-veredito ' + d.veredito + '">' + VEREDITO_TESE[d.veredito] +
+      '</p>' +
+      '<p>A avaliação acima resume o que as seções seguintes destrincham: o ' +
+      'que a empresa faz, o que os balanços mostram, quanto ela deve, quem a ' +
+      'controla e o que pode dar errado. Nenhuma delas fala de preço.</p>';
+  }
+
+  // ---- último exercício: o ano mais recente contra o anterior
+  function blocoUltimoExercicio(d, a) {
+    if (a.n < 2) { return ''; }
+    var ant = d.linhas[a.n - 2], ult = a.ult;
+    var mi = esc(d.moeda) + ' ';
+
+    function linha(rotulo, campo, formata, ehPercentual) {
+      var va = ant[campo], vu = ult[campo];
+      if ((va === null || va === undefined) && (vu === null || vu === undefined)) {
+        return '';
+      }
+      var v = ehPercentual
+        ? (va === null || vu === null ? null : vu - va)
+        : variacao(vu, va);
+      var celula;
+      if (v === null) {
+        celula = '<td class="vazio">&mdash;</td>';
+      } else if (Math.abs(v) < 0.05) {
+        celula = '<td class="vazio">estável</td>';
+      } else {
+        celula = '<td class="' + (v < 0 ? 'negativo' : 'positivo') + '">' +
+          (v >= 0 ? '+' : '&minus;') + num(Math.abs(v), 1) +
+          (ehPercentual ? ' p.p.' : '%') + '</td>';
+      }
+      return '<tr><td class="ano">' + rotulo + '</td><td>' + formata(va) +
+        '</td><td>' + formata(vu) + '</td>' + celula + '</tr>';
+    }
+
+    function dinheiro(v) { return v === null || v === undefined ? '<span class="vazio">&mdash;</span>' : mi + moeda(v); }
+    function porcento(v) { return v === null || v === undefined ? '<span class="vazio">&mdash;</span>' : pct(v, 1); }
+    function vezes(v) { return v === null || v === undefined ? '<span class="vazio">&mdash;</span>' : num(v, 2); }
+
+    var corpo = [
+      linha('Receita', 'receita', dinheiro),
+      linha('Lucro', 'lucro', dinheiro),
+      linha('Margem líquida', 'margem', porcento, true),
+      linha('ROE', 'roe', porcento, true),
+      linha('Patrimônio líquido', 'patrimonio', dinheiro),
+      a.banco ? linha('Ativo / patrimônio', 'alavancagem', vezes)
+              : linha('Dívida / patrimônio', 'divida_pl', vezes)
+    ].join('');
+
+    var varLucro = variacao(ult.lucro, ant.lucro);
+    var frase;
+    if (ult.lucro === null || ant.lucro === null) {
+      frase = 'O balanço não trouxe os dois anos completos, então a comparação ' +
+              'fica parcial.';
+    } else if (ult.lucro < 0 && ant.lucro >= 0) {
+      frase = 'O ponto do ano é a virada: a empresa saiu do lucro para o ' +
+              'prejuízo em ' + a.ate + '.';
+    } else if (ult.lucro >= 0 && ant.lucro < 0) {
+      frase = 'O ponto do ano é a virada: a empresa saiu do prejuízo para o ' +
+              'lucro em ' + a.ate + '.';
+    } else if (varLucro === null) {
+      frase = 'Um ano só não faz tese — ele conta como o último capítulo se ' +
+              'encaixa no resto da série.';
+    } else {
+      frase = 'O lucro de ' + a.ate + ' ficou ' + num(Math.abs(varLucro), 1) +
+        '% ' + (varLucro >= 0 ? 'acima' : 'abaixo') + ' do de ' + ant.ano +
+        '. Um ano só não faz tese, nem desfaz: ele conta como o último ' +
+        'capítulo se encaixa no resto da série.';
+    }
+
+    return '<div class="rolagem tese-comparativo"><table><thead><tr><th>&nbsp;</th><th>' +
+      ant.ano + '</th><th>' + a.ate + '</th><th>VARIAÇÃO</th></tr></thead>' +
+      '<tbody>' + corpo + '</tbody></table></div>' +
+      '<p style="margin-top:12px">' + frase + '</p>';
+  }
+
+  function blocoNegocio(d, a) {
+    var s = d.sobre || {};
+    var texto = s.paragrafo || s.descricao || '';
+    var fatos = [];
+    fatos.push('<span class="fato"><b>setor</b> ' + esc(d.setor) + '</span>');
+    if (s.rotulo_controle) {
+      fatos.push('<span class="fato destaque"><b>controle</b> ' +
+                 esc(s.rotulo_controle) + '</span>');
+    }
+    if (s.fundacao) {
+      fatos.push('<span class="fato"><b>fundada em</b> ' +
+                 esc(s.fundacao.slice(0, 4)) + '</span>');
+    }
+    if (s.sede) { fatos.push('<span class="fato"><b>sede</b> ' + esc(s.sede) + '</span>'); }
+    if (s.empregados) {
+      fatos.push('<span class="fato"><b>empregados</b> ' +
+                 s.empregados.toLocaleString('pt-BR') + '</span>');
+    }
+    if (s.total_controladas) {
+      fatos.push('<span class="fato"><b>controladas</b> ' + s.total_controladas + '</span>');
+    }
+
+    var dinheiro = '';
+    if (a.ult.receita !== null && a.ult.receita > 0 && a.ult.lucro !== null) {
+      var valores = texto ? '' : 'Em ' + a.ate + ' entraram ' + esc(d.moeda) +
+        ' <span class="numero-forte">' + moeda(a.ult.receita) +
+        ' milhões</span> de receita e ' +
+        (a.ult.lucro >= 0 ? 'sobraram ' : 'faltaram ') + esc(d.moeda) +
+        ' <span class="numero-forte">' + moeda(Math.abs(a.ult.lucro)) +
+        ' milhões</span>. ';
+      var sobra = a.ult.margem === null ? ''
+        : (a.ult.margem < 0
+            ? 'De cada ' + esc(d.moeda) + ' 100 de receita em ' + a.ate +
+              ', nada sobrou: o ano fechou no vermelho.'
+            : 'De cada ' + esc(d.moeda) + ' 100 de receita em ' + a.ate + ', ' +
+              esc(d.moeda) + ' <span class="numero-forte">' +
+              num(a.ult.margem, 0) + '</span> ' +
+              (Math.round(a.ult.margem) === 1 ? 'sobrou' : 'sobraram') +
+              ' como lucro.');
+      if (valores || sobra) { dinheiro = '<p>' + valores + sobra + '</p>'; }
+    }
+
+    var filhas = '';
+    if (s.controladas && s.controladas.length) {
+      filhas = '<div class="subtitulo-bloco">Principais controladas e coligadas</div>' +
+        '<ul class="sublista">' + s.controladas.slice(0, 6).map(function (c) {
+          var partes = [];
+          if (c.tipo) { partes.push(c.tipo.toLowerCase()); }
+          if (c.fatia) { partes.push(num(c.fatia, 1) + '%'); }
+          if (c.pais && c.pais !== 'Brasil') { partes.push(c.pais); }
+          return '<li>' + esc(c.nome) + ' <span class="quanto">' +
+                 esc(partes.join(' · ')) + '</span></li>';
+        }).join('') + '</ul>';
+    }
+
+    return (texto ? '<p>' + esc(texto) + '</p>' : '') + dinheiro +
+      '<div class="fatos" style="margin-top:4px">' + fatos.join('') + '</div>' +
+      filhas;
+  }
+
+  function blocoFinanceira(d, a) {
+    var cresc = [], rent = [];
+
+    if (a.anosMedidos) {
+      if (a.anosPositivos === a.anosMedidos) {
+        cresc.push('Lucro positivo em todos os ' + a.anosMedidos + ' anos entre ' +
+               a.de + ' e ' + a.ate + '. Isso é o mínimo que se pede de uma ' +
+               'empresa para ser sócio dela, e é o que a maioria da bolsa não entrega.');
+      } else if (a.anosPositivos === 0) {
+        cresc.push('Nenhum ano de lucro entre ' + a.de + ' e ' + a.ate +
+               '. Empresa que não lucra não tem o que dividir com sócio: ' +
+               'o que ela distribui é prejuízo.');
+      } else {
+        cresc.push('Lucro em ' + a.anosPositivos + ' dos ' + a.anosMedidos +
+               ' anos, ' + a.falha + a.semLucro.join(', ') +
+               '. Ano ruim isolado acontece; ano ruim que volta é o negócio ' +
+               'dizendo alguma coisa.');
+      }
+    }
+    if (a.lucroAcumulado !== null) {
+      cresc.push('Somando os ' + a.anosMedidos + ' anos, a empresa ' +
+        (a.lucroAcumulado >= 0 ? 'acumulou ' + esc(d.moeda) + ' ' +
+          moeda(a.lucroAcumulado) + ' milhões de lucro'
+          : 'acumulou ' + esc(d.moeda) + ' ' + moeda(-a.lucroAcumulado) +
+            ' milhões de prejuízo') + '.');
+    }
+    var taxas = [];
+    if (a.cagrReceita !== null) {
+      taxas.push('a receita ' + (a.cagrReceita >= 0 ? 'cresceu ' : 'caiu ') +
+                 num(Math.abs(a.cagrReceita), 1) + '% ao ano' +
+                 (a.multReceita ? ' (multiplicou por ' + num(a.multReceita, 1) + ')' : ''));
+    }
+    if (a.cagrLucro !== null) {
+      taxas.push('o lucro ' + (a.cagrLucro >= 0 ? 'cresceu ' : 'caiu ') +
+                 num(Math.abs(a.cagrLucro), 1) + '% ao ano');
+    }
+    if (a.cagrPl !== null) {
+      taxas.push('o patrimônio líquido ' + (a.cagrPl >= 0 ? 'cresceu ' : 'caiu ') +
+                 num(Math.abs(a.cagrPl), 1) + '% ao ano');
+    }
+    if (taxas.length) {
+      cresc.push('No período, ' + taxas.join(', ') + '.' +
+        (a.cagrPl !== null && a.cagrPl > 0
+          ? ' Patrimônio que cresce ano após ano é lucro que ficou dentro da ' +
+            'empresa em vez de sumir.'
+          : (a.cagrPl !== null
+              ? ' Patrimônio que encolhe é o contrário disso: o que a empresa ' +
+                'ganhou não deu conta do que ela perdeu.' : '')));
+    }
+
+    if (a.roeMedio !== null) {
+      rent.push('O retorno sobre o patrimônio ficou em ' + num(a.roeMedio, 1) +
+             '% ao ano na média' +
+             (a.ult.roe !== null ? ', e em ' + num(a.ult.roe, 1) + '% no último ano' : '') +
+             '. É quanto a empresa devolve sobre o dinheiro que os sócios ' +
+             'deixaram nela.');
+    }
+    if (a.margemMedia !== null) {
+      rent.push('A margem líquida média foi de ' + num(a.margemMedia, 1) + '%' +
+        (a.margemMedia < 0
+          ? ': no conjunto do período a operação consumiu mais do que trouxe.'
+          : (a.margemMedia < 5
+              ? ': margem fina assim deixa pouca folga para erro, para juro e ' +
+                'para crise.'
+              : '.')));
+    }
+    if (a.plNegativo) {
+      rent.push('Com patrimônio líquido negativo, o ROE perde sentido: não há ' +
+                'capital de sócio sobre o qual calcular retorno.');
+    }
+
+    function paras(lista) {
+      return lista.map(function (x) { return '<p>' + x + '</p>'; }).join('');
+    }
+    return '<div class="subtitulo-bloco">Crescimento</div>' + paras(cresc) +
+      '<div style="margin-top:14px">' + grafico(d.linhas) + '</div>' +
+      (rent.length ? '<div class="subtitulo-bloco" style="margin-top:16px">Rentabilidade</div>' +
+        paras(rent) : '');
+  }
+
+  function blocoEndividamento(d, a) {
+    var p = [];
+    if (a.banco) {
+      p.push('Banco e seguradora não têm "dívida" no sentido comum: captar ' +
+             'dinheiro é a operação deles. O que se olha aqui é a alavancagem, ' +
+             'quantas vezes o ativo cabe dentro do patrimônio.');
+      if (a.ult.alavancagem) {
+        p.push('No último balanço, o ativo era ' + num(a.ult.alavancagem, 1) +
+               ' vezes o patrimônio líquido. Quanto mais alto, menos espaço ' +
+               'para calote sem machucar o sócio.');
+      }
+    } else if (a.ult.divida_pl === null || a.ult.divida_pl === undefined) {
+      p.push('O balanço do último ano não trouxe a abertura de dívida, então ' +
+             'aqui não dá para afirmar nada. Sem esse número, a tese fica ' +
+             'com um buraco.');
+    } else {
+      p.push('A dívida bruta fechou ' + a.ate + ' em ' + esc(d.moeda) + ' ' +
+             moeda(a.ult.divida) + ' milhões, ou ' + num(a.ult.divida_pl, 2) +
+             ' vez' + (a.ult.divida_pl === 1 ? '' : 'es') + ' o patrimônio líquido.');
+      if (a.ult.divida_pl <= 0.5) {
+        p.push('Dívida abaixo de metade do patrimônio é folga: a empresa ' +
+               'aguenta um ano ruim sem precisar pedir dinheiro a ninguém.');
+      } else if (a.ult.divida_pl <= 1) {
+        p.push('Dívida na casa de uma vez o patrimônio ainda é administrável, ' +
+               'mas já é um número para não perder de vista.');
+      } else {
+        p.push('Dívida maior que o patrimônio significa que o credor tem mais ' +
+               'dinheiro na empresa do que o sócio. Numa virada de juro ou de ' +
+               'ciclo, quem decide passa a ser o banco.');
+      }
+      if (a.ult.caixa_liquido !== null && a.ult.caixa_liquido !== undefined) {
+        p.push(a.ult.caixa_liquido >= 0
+          ? 'Descontando o caixa, sobra dinheiro: ' + esc(d.moeda) + ' ' +
+            moeda(a.ult.caixa_liquido) + ' milhões de caixa líquido positivo.'
+          : 'Descontando o caixa, ainda faltam ' + esc(d.moeda) + ' ' +
+            moeda(-a.ult.caixa_liquido) + ' milhões para zerar a dívida.');
+      }
+      var td = tendencia(d.linhas, 'divida_pl');
+      if (td) {
+        var delta = td.recentes - td.antes;
+        var mudou = Math.abs(delta) >= 0.1 && Math.abs(td.variacao) >= 15;
+        p.push(mudou
+          ? 'A dívida vem ' + (delta > 0 ? 'subindo' : 'caindo') +
+            ': nos três últimos anos a razão média foi de ' + num(td.recentes, 2) +
+            ', contra ' + num(td.antes, 2) + ' nos três anteriores.'
+          : 'A razão se manteve estável nos últimos anos, perto de ' +
+            num(td.recentes, 2) + '.');
+      }
+    }
+    return p.map(function (x) { return '<p>' + x + '</p>'; }).join('');
+  }
+
+  function blocoDividendosTese(d, a) {
+    var dv = d.dividendos;
+    if (!dv) { return ''; }
+    var p = [];
+    p.push('<b>' + esc(dv.titulo) + '.</b> ' + esc(dv.detalhe));
+    if (dv.payout !== null && dv.payout !== undefined) {
+      p.push(dv.payout > 90
+        ? 'Payout acima de 90% quer dizer que quase tudo o que a empresa ganha ' +
+          'sai pela porta. Sobra pouco para crescer, e qualquer ano fraco ' +
+          'derruba o pagamento.'
+        : 'Payout de ' + num(dv.payout, 0) + '% deixa o resto do lucro dentro ' +
+          'da empresa, que é de onde sai o crescimento do ano seguinte.');
+    }
+    p.push('Dividendo é consequência de lucro, não motivo de compra. Empresa ' +
+           'que paga muito e lucra pouco está distribuindo o próprio caixa; ' +
+           'uma hora acaba. E o yield que se vê publicado é o dividendo dividido ' +
+           'pelo preço de hoje: ele sobe quando a ação cai, o que não é boa ' +
+           'notícia nenhuma.');
+    return p.map(function (x) { return '<p>' + x + '</p>'; }).join('');
+  }
+
+  function blocoGovernanca(d, a) {
+    var s = d.sobre;
+    if (!s || (!s.rotulo_controle && !(s.controladores && s.controladores.length))) {
+      return '';
+    }
+    var p = [];
+    var explica = {
+      familiar: 'Controle familiar costuma jogar no longo prazo, porque a ' +
+                'família não vende a empresa no próximo trimestre. O outro lado ' +
+                'é sucessão: cedo ou tarde, ela chega.',
+      estatal: 'Controle estatal significa que o acionista majoritário responde ' +
+               'a eleição, não a balanço. Preço administrado, investimento por ' +
+               'decisão política e troca de diretoria a cada governo fazem parte ' +
+               'do pacote — e o sócio minoritário vai junto.',
+      privado: 'Controle privado, sem uma família à frente. Vale olhar quem são ' +
+               'os sócios de referência e há quanto tempo eles estão ali.',
+      'grupo estrangeiro': 'O controle está fora do país. A empresa brasileira ' +
+               'tende a seguir a estratégia da matriz, inclusive quando a ' +
+               'matriz resolve sair.'
+    };
+    if (s.rotulo_controle) {
+      p.push('<b>Controle ' + esc(s.rotulo_controle) + '.</b> ' +
+             (explica[s.rotulo_controle] || ''));
+    }
+    if (s.total_controladores > 1) {
+      p.push('A CVM registra ' + s.total_controladores + ' acionistas no bloco ' +
+             'de controle. Bloco pulverizado costuma significar acordo de ' +
+             'acionistas por trás, e é lá que as decisões de verdade são tomadas.');
+    }
+    var lista = '';
+    if (s.controladores && s.controladores.length) {
+      lista = '<div class="subtitulo-bloco">Quem controla</div><ul class="sublista">' +
+        s.controladores.slice(0, 8).map(function (c) {
+          return '<li>' + esc(c.nome) + ' <span class="quanto">' +
+            esc([c.pessoa ? 'pessoa ' + c.pessoa : '',
+                 c.exterior ? 'reside no exterior' : '']
+                .filter(Boolean).join(' · ')) + '</span></li>';
+        }).join('') +
+        (s.total_controladores > Math.min(8, s.controladores.length)
+          ? '</ul><p class="quanto" style="margin:6px 0 0">e mais ' +
+            (s.total_controladores - Math.min(8, s.controladores.length)) +
+            ' acionistas marcados como controladores.</p>'
+          : '</ul>');
+    }
+    p.push('Ser sócio é aceitar quem manda. Quem controla decide dividendo, ' +
+           'dívida, aquisição e quem senta na diretoria — o minoritário não é ' +
+           'consultado, ele vai junto.');
+    return p.map(function (x) { return '<p>' + x + '</p>'; }).join('') + lista;
+  }
+
+  // Perspectivas aqui não é projeção: é a direção que os últimos anos vinham
+  // tomando, que vale até o próximo balanço dizer o contrário.
+  function blocoPerspectivas(d, a) {
+    var p = [];
+    var tr = tendencia(d.linhas, 'receita'), tl = tendencia(d.linhas, 'lucro');
+    var linhas = [];
+    if (tr) {
+      linhas.push('a receita média dos três últimos anos ficou ' +
+        num(Math.abs(tr.variacao), 0) + '% ' + (tr.variacao >= 0 ? 'acima' : 'abaixo') +
+        ' da dos três anteriores');
+    }
+    if (tl) {
+      linhas.push('o lucro médio, ' + num(Math.abs(tl.variacao), 0) + '% ' +
+        (tl.variacao >= 0 ? 'acima' : 'abaixo'));
+    }
+    if (linhas.length) {
+      p.push('Olhando só a segunda metade da série, ' + linhas.join(' e ') + '.');
+    }
+
+    if (tl && tr) {
+      if (tl.variacao > 0 && tr.variacao > 0) {
+        p.push('Receita e lucro subindo juntos é o desenho que sustenta uma ' +
+               'tese de longo prazo: a empresa está vendendo mais e conseguindo ' +
+               'guardar mais do que vende.');
+      } else if (tl.variacao <= 0 && tr.variacao > 0) {
+        p.push('A receita sobe e o lucro não acompanha. Isso costuma ser custo, ' +
+               'juro da dívida ou concorrência comendo a margem — e é o ponto ' +
+               'a vigiar nos próximos balanços.');
+      } else if (tl.variacao > 0 && tr.variacao <= 0) {
+        p.push('O lucro melhorou sem que a receita crescesse. Corte de custo ' +
+               'tem limite: sem receita nova, uma hora a conta para de dar.');
+      } else {
+        p.push('Receita e lucro vêm recuando juntos. Até que isso mude, a ' +
+               'empresa está encolhendo, e tese de longo prazo não se apoia em ' +
+               'encolhimento.');
+      }
+    }
+
+    var dv = d.dividendos;
+    if (dv && dv.anos) {
+      p.push(dv.anos_pagando === dv.anos
+        ? 'Do lado do sócio, a empresa distribuiu em todos os ' + dv.anos +
+          ' anos medidos. Enquanto o lucro se sustentar, não há razão para isso parar.'
+        : 'Do lado do sócio, a empresa distribuiu em ' + dv.anos_pagando +
+          ' dos ' + dv.anos + ' anos medidos — quem compra contando com o ' +
+          'pagamento todo ano precisa saber disso.');
+    }
+
+    p.push('<i>Nada disso é projeção.</i> É a direção que os últimos anos vinham ' +
+           'tomando, e ela vale até o próximo balanço dizer o contrário. ' +
+           'Empresa não é obrigada a repetir o passado — o passado só é a ' +
+           'única coisa que dá para conferir.');
+    return p.map(function (x) { return '<p>' + x + '</p>'; }).join('');
+  }
+
+  function blocoSustenta(d) {
+    var bons = (d.sinais || []).filter(function (s) { return s.situacao === 'bom'; });
+    if (!bons.length) { return ''; }
+    return '<ul class="lista-tese">' + bons.map(function (s) {
+      return '<li><b>' + esc(s.titulo) + '.</b> ' + esc(s.detalhe) + '</li>';
+    }).join('') + '</ul>';
+  }
+
+  function blocoRiscos(d, a) {
+    var itens = (d.sinais || []).filter(function (s) {
+      return s.situacao === 'atencao' || s.situacao === 'ruim';
+    }).map(function (s) {
+      return '<li><b>' + esc(s.titulo) + '.</b> ' + esc(s.detalhe) + '</li>';
+    });
+
+    for (var i = 0; i < RISCO_SETOR.length; i++) {
+      if (RISCO_SETOR[i][0].test(d.setor)) {
+        itens.push('<li><b>' + RISCO_SETOR[i][1] + '.</b> ' + RISCO_SETOR[i][2] + '</li>');
+        break;
+      }
+    }
+    if (a.estatal) {
+      itens.push('<li><b>O controlador é o governo.</b> A empresa pode ser usada ' +
+                 'para segurar preço, fazer investimento que não paga ou ' +
+                 'absorver custo político. Já aconteceu nas maiores da bolsa.</li>');
+    }
+    if (a.banco) {
+      itens.push('<li><b>Ciclo de crédito.</b> Em recessão a inadimplência sobe ' +
+                 'antes do lucro cair, e o balanço de banco demora a mostrar o ' +
+                 'estrago.</li>');
+    }
+    if (!d.liquidez) {
+      itens.push('<li><b>O papel não negocia.</b> Sem liquidez, comprar e vender ' +
+                 'vira problema: o preço na tela não é o preço que você consegue.</li>');
+    } else if (d.liquidez < 1000000) {
+      itens.push('<li><b>Liquidez baixa.</b> Gira pouco por dia, o que alarga o ' +
+                 'spread e faz qualquer ordem maior mexer no preço.</li>');
+    }
+    var jaDito = (d.sinais || []).some(function (s) {
+      return /patrim[oô]nio l[ií]quido negativo/i.test(s.titulo);
+    });
+    if (a.plNegativo && !jaDito) {
+      itens.push('<li><b>Patrimônio líquido negativo.</b> A empresa deve mais do ' +
+                 'que tem. Daqui para a frente, ou entra dinheiro novo de sócio ' +
+                 'ou a conta não fecha.</li>');
+    }
+    itens.push('<li><b>Concentração.</b> Nenhuma tese, por melhor que seja, ' +
+               'justifica uma empresa só. O risco que derruba carteira é o que ' +
+               'ninguém viu chegar.</li>');
+
+    return '<ul class="lista-tese">' + itens.join('') + '</ul>';
+  }
+
+  function blocoMonitorar(d, a) {
+    var itens = [];
+    itens.push('<li><b>O lucro continua positivo?</b> Um ano de prejuízo pede ' +
+               'explicação; dois seguidos pedem revisão da tese.</li>');
+    if (!a.banco && a.ult.divida_pl !== null && a.ult.divida_pl !== undefined) {
+      itens.push('<li><b>A dívida sobre o patrimônio passou de 1?</b> Hoje está ' +
+                 'em ' + num(a.ult.divida_pl, 2) + '.</li>');
+    }
+    if (a.banco && a.ult.alavancagem) {
+      itens.push('<li><b>A alavancagem continua na faixa?</b> Hoje o ativo é ' +
+                 num(a.ult.alavancagem, 1) + ' vezes o patrimônio.</li>');
+    }
+    if (a.margemMedia !== null) {
+      itens.push('<li><b>A margem se segura perto de ' + num(a.margemMedia, 0) +
+                 '%?</b> Margem que cai ano após ano é concorrência batendo na ' +
+                 'porta.</li>');
+    }
+    if (d.dividendos && d.dividendos.payout) {
+      itens.push('<li><b>O que a empresa distribui cabe no que ela ganha?</b> ' +
+                 'A média do período foi ' + num(d.dividendos.payout, 0) +
+                 '% do lucro.</li>');
+    }
+    itens.push('<li><b>O patrimônio líquido segue subindo?</b> É o placar de ' +
+               'longo prazo: lucro que ficou dentro da empresa.</li>');
+    itens.push('<li><b>Apareceu emissão de ações nova?</b> Ação nova sem ' +
+               'contrapartida dilui a sua fatia sem que você venda nada.</li>');
+    if (a.estatal) {
+      itens.push('<li><b>Quem está na diretoria e o que o controlador anda ' +
+                 'pedindo.</b> Em estatal, isso muda mais rápido que o balanço.</li>');
+    }
+    if (a.emCrise) {
+      itens.push('<li><b>O andamento do processo na Justiça.</b> Enquanto o ' +
+                 'plano não fecha, o balanço não conta a história inteira.</li>');
+    }
+    return '<ul class="lista-tese">' + itens.join('') + '</ul>';
+  }
+
+  var PAPEL_CARTEIRA = {
+    bom: '<b>Serve de base.</b> Base não quer dizer sozinha: uma empresa boa que ' +
+         'vira metade da carteira transforma qualquer notícia ruim em problema ' +
+         'seu. Defina quanto cada empresa pode pesar, espalhe por setores ' +
+         'diferentes e aporte no que estiver mais atrasado dentro do limite.',
+    atencao: '<b>Cabe, em dose menor.</b> Posição abaixo da que você dá para as ' +
+         'empresas de histórico limpo, e revisão a cada balanço. Se você não ' +
+         'vai acompanhar de perto, essa não é a sua.',
+    ruim: '<b>Não cabe.</b> Não existe preço que conserte lucro que não aparece ' +
+         'ou dívida que não cabe no patrimônio. A B3 tem centenas de outras ' +
+         'empresas — não é preciso insistir nesta.'
+  };
+
+  var FECHO_TESE = {
+    bom: 'No conjunto, a empresa entrega o que se pede de uma sócia de longo ' +
+         'prazo: lucra, cresce e não depende de credor para continuar de pé. ' +
+         'Os riscos listados acima não desmontam isso — eles dizem onde olhar.',
+    atencao: 'No conjunto, a empresa tem base, mas tem também um ponto aberto. ' +
+             'Não é um caso de descartar nem de comprar sem olhar: é um caso de ' +
+             'acompanhar, e de não deixar que ele cresça demais na carteira.',
+    ruim: 'No conjunto, o balanço não sustenta uma tese de longo prazo. Pode ' +
+          'ser que a empresa se arrume — várias se arrumam —, mas isso é aposta ' +
+          'na recuperação, não sociedade em negócio que já funciona. São coisas ' +
+          'diferentes, e convém não confundir uma com a outra.'
+  };
+
+  function blocoConclusao(d, a) {
+    return '<p>' + FECHO_TESE[d.veredito] + '</p>' +
+      '<div class="subtitulo-bloco">Papel na carteira</div>' +
+      '<div class="papel-carteira ' + d.veredito + '">' +
+      PAPEL_CARTEIRA[d.veredito] + '</div>';
+  }
+
+  var SEM_PRECO =
+    '<p>É aqui que um relatório de casa de análise põe o valuation e fecha com ' +
+    'preço justo e preço-teto. Esta tese não tem nem um nem outro, e a ausência ' +
+    'é o ponto, não um descuido.</p>' +
+    '<p>Preço-alvo é chute com casas decimais: alguém projeta o lucro de cinco ' +
+    'anos, escolhe um múltiplo e publica um número que o mercado não tem ' +
+    'obrigação nenhuma de respeitar. Quando o preço não chega lá, revisam o ' +
+    'alvo — nunca a conta.</p>' +
+    '<p>Balanço responde outra pergunta, e essa dá para responder: a empresa ' +
+    'lucra? cresce? a dívida cabe no patrimônio? quem manda nela? É disso que ' +
+    'esta tese trata. Se a resposta for sim, você vira sócio e continua ' +
+    'comprando aos poucos; se for não, preço nenhum resolve.</p>' +
+    '<p>Pelo mesmo motivo você não vai encontrar P/L nem P/VP nestas seções. ' +
+    'Eles mudam todo dia porque o preço muda todo dia, e o preço de hoje não ' +
+    'diz nada sobre a empresa que você vai carregar por vinte anos. Os ' +
+    'indicadores do dia continuam na ficha, para quem quiser conferir.</p>';
+
+  function montarTese(t) {
+    var d = BASE[t];
+    if (!d) {
+      elTese.innerHTML = '<p class="carregando">Ação não encontrada.</p>';
+      return;
+    }
+    var a = analise(d);
+
+    // as seções se registram aqui e o sumário nasce da mesma lista, para que
+    // um nunca fique fora de sincronia com o outro
+    var secoes = [];
+    function secao(id, titulo, corpo, classe) {
+      if (!corpo) { return; }
+      secoes.push({
+        id: id, titulo: titulo,
+        html: '<div class="painel ' + (classe || '') + '" id="tese-' + id +
+              '"><h3>' + titulo + '</h3>' + corpo + '</div>'
+      });
+    }
+
+    secao('opiniao', 'Opinião', blocoOpiniao(d, a));
+    secao('exercicio', 'Último exercício (' + a.ate + ')', blocoUltimoExercicio(d, a));
+    secao('negocio', 'Modelo de negócio', blocoNegocio(d, a));
+    secao('financeira', 'Análise financeira', blocoFinanceira(d, a));
+    secao('divida', a.banco ? 'Alavancagem' : 'Endividamento', blocoEndividamento(d, a));
+    secao('dividendos', 'Dividendos', blocoDividendosTese(d, a));
+    secao('governanca', 'Governança', blocoGovernanca(d, a));
+    secao('perspectivas', 'Perspectivas', blocoPerspectivas(d, a));
+    secao('sustenta', 'O que sustenta a tese', blocoSustenta(d));
+    secao('riscos', 'Riscos', blocoRiscos(d, a));
+    secao('monitorar', 'O que monitorar a cada balanço', blocoMonitorar(d, a));
+    secao('conclusao', 'Conclusão', blocoConclusao(d, a));
+    secao('sem-preco', 'Por que esta tese não tem preço-teto', SEM_PRECO, 'sem-alvo');
+
+    // âncora comum (href="#algo") trocaria a rota da página, que é a própria
+    // hash: o sumário rola por JavaScript
+    var sumario = '<nav class="tese-sumario"><h3>Nesta tese</h3><ol>' +
+      secoes.map(function (s) {
+        return '<li><button type="button" data-ir="tese-' + s.id + '">' +
+          s.titulo + '</button></li>';
+      }).join('') + '</ol></nav>';
+
+    var alerta = '';
+    if (a.emCrise && d.sobre && d.sobre.situacao_emissor) {
+      alerta = '<div class="alerta-grave"><b>Situação na CVM: ' +
+        esc(d.sobre.situacao_emissor.toLowerCase()) + '.</b> Antes de qualquer ' +
+        'leitura do balanço, é isso que define o caso.</div>';
+    }
+
+    elTese.innerHTML =
+      '<a class="voltar" href="#/' + esc(t) + '">&larr; voltar para a ficha de ' +
+      esc(t) + '</a>' +
+      '<div class="tese-topo">' +
+      '<div class="tese-rotulo">Tese de investimento</div>' +
+      '<div class="cabecalho">' + marca(t, d, true) +
+      '<div><h2>' + esc(d.nome) + ' (' + esc(t) + ')</h2>' +
+      '<div class="sub">' + esc(d.setor) + '</div></div>' +
+      '<span class="selos">' + selosInternos(d) + '</span></div>' +
+      '<div class="tese-data">Balanços de ' + a.de + ' a ' + a.ate +
+      ', entregues à CVM' +
+      (d.coletado_em ? ' &middot; dados coletados em ' + esc(d.coletado_em) : '') +
+      '</div></div>' +
+      sumario + alerta +
+      secoes.map(function (s) { return s.html; }).join('') +
+      '<div class="tese-acoes">' +
+      '<a class="botao fraco" href="#/' + esc(t) + '">Ver o balanço ano a ano</a>' +
+      '<a class="botao fraco" href="#">Todas as ações</a></div>' +
+      '<p class="fonte">Série anual e cadastro: CVM (dados.cvm.gov.br). Código ' +
+      'CVM ' + esc(d.codigo_cvm) + '. A tese é montada a partir desses números, ' +
+      'sem opinião digitada à mão e sem projeção de preço.<br>' +
+      'Isto não é recomendação de compra ou venda. É leitura de histórico: ' +
+      'a decisão, e o risco dela, são seus.</p>';
   }
 
   // ---- simulador de dividendos
@@ -818,8 +1673,13 @@ icone_png: /assets/freedom/icone-180.png
       });
   }
 
+  var TITULO = document.title;
+
   function rota() {
-    var t = (location.hash || '').replace(/^#\/?/, '').toUpperCase();
+    // a rota é #/PAPEL; a tese mora um degrau abaixo, em #/PAPEL/tese, e é
+    // uma página inteira à parte — não um trecho a mais da ficha
+    var partes = (location.hash || '').replace(/^#\/?/, '').toUpperCase().split('/');
+    var t = partes[0], sub = partes[1] || '';
     // link direto para um papel de outra bolsa (ou a carteira do simulador,
     // que mistura bolsas): aí vale baixar o resto e refazer a rota
     if (!tudoBaixado() && (t === 'SIMULADOR' || (t && !BASE[t]))) {
@@ -828,17 +1688,27 @@ icone_png: /assets/freedom/icone-180.png
     }
     elLista.hidden = true;
     elDetalhe.hidden = true;
+    elTese.hidden = true;
     elSimulador.hidden = true;
     if (t === 'SIMULADOR') {
       montarSimulador();
       elSimulador.hidden = false;
+      document.title = 'Simulador de dividendos · ' + TITULO;
     } else if (t && BASE[t]) {
       // voltar de um papel da NYSE tem que cair na lista da NYSE
       if (BASE[t].bolsa !== bolsaAtual) { trocarBolsa(BASE[t].bolsa); }
-      montarDetalhe(t);
-      elDetalhe.hidden = false;
+      if (sub === 'TESE') {
+        montarTese(t);
+        elTese.hidden = false;
+        document.title = 'Tese de investimentos · ' + t + ' · ' + TITULO;
+      } else {
+        montarDetalhe(t);
+        elDetalhe.hidden = false;
+        document.title = t + ' · ' + TITULO;
+      }
     } else {
       elLista.hidden = false;
+      document.title = TITULO;
     }
     window.scrollTo(0, 0);
   }
@@ -909,6 +1779,14 @@ icone_png: /assets/freedom/icone-180.png
         esc(erro.message) + '</p>';
     });
   }
+
+  // o sumário da tese rola por JavaScript; delegado e registrado uma vez só
+  elTese.addEventListener('click', function (e) {
+    var ir = e.target.getAttribute && e.target.getAttribute('data-ir');
+    if (!ir) { return; }
+    var destino = document.getElementById(ir);
+    if (destino && destino.scrollIntoView) { destino.scrollIntoView(); }
+  });
 
   elBusca.addEventListener('input', aplicarFiltro);
   elSetor.addEventListener('change', aplicarFiltro);
