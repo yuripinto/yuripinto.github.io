@@ -259,6 +259,22 @@ icone_png: /assets/freedom/icone-180.png
 #fr .tese-sumario button:hover { text-decoration:underline; }
 /* o cabeçalho da tese usa o nome da empresa, que é bem mais longo que o ticker */
 #fr .tese-topo .cabecalho h2 { font-size:19px; line-height:1.3; }
+/* o explicador de setor: vale para todas as empresas da família, e por isso
+   vem visualmente destacado do que é específico da companhia */
+#fr .setor-bloco { background:#f7f9fc; border:1px solid #e3e8ee; border-radius:10px;
+                   padding:14px 16px; margin:16px 0 0; }
+#fr .setor-bloco .cabeca { display:flex; align-items:center; gap:14px; margin-bottom:8px; }
+#fr .setor-bloco .ilustra { flex:0 0 auto; width:76px; height:58px; }
+#fr .setor-bloco .ilustra svg { width:76px; height:58px; display:block;
+                                fill:none; stroke:#5b7ba8; stroke-width:1.7;
+                                stroke-linecap:round; stroke-linejoin:round; }
+#fr .setor-bloco .titulo { font-size:12px; text-transform:uppercase;
+                           letter-spacing:.6px; color:#5b6672; font-weight:700; }
+#fr .setor-bloco .titulo b { display:block; text-transform:none; letter-spacing:0;
+                             font-size:15px; color:var(--tinta); margin-top:2px; }
+#fr-tese .setor-bloco p { font-size:14px; }
+#fr .perfil-data { color:var(--fraco); font-size:12px; margin-top:12px;
+                   padding-top:10px; border-top:1px solid #f0f3f7; }
 </style>
 
 <div id="fr" class="px-6 py-8">
@@ -300,6 +316,39 @@ icone_png: /assets/freedom/icone-180.png
 
   <div id="fr-detalhe" hidden></div>
   <div id="fr-tese" hidden></div>
+  <svg id="fr-icones" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+  <defs>
+  <symbol id="ic-energia" viewBox="0 0 64 48"><path d="M20 44 L26 8 L32 4 L38 8 L44 44 M23 26 h18 M21.5 34 h21 M24.5 18 h15 M26 8 L38 44 M38 8 L26 44 M32 4 v-2 M4 12 h10 M50 12 h10 M4 12 q8 6 16 4 M60 12 q-8 6 -16 4"/></symbol>
+  <symbol id="ic-banco" viewBox="0 0 64 48"><path d="M8 18 L32 6 L56 18 M6 18 h52 M12 18 v20 M22 18 v20 M32 18 v20 M42 18 v20 M52 18 v20 M6 38 h52 M4 44 h56"/><circle cx="32" cy="14" r="2"/></symbol>
+  <symbol id="ic-varejo" viewBox="0 0 64 48"><path d="M14 18 h36 l-3 26 h-30 z M22 18 v-6 a10 10 0 0 1 20 0 v6 M8 18 q4 -8 8 -8 h32 q4 0 8 8 M22 26 h20"/></symbol>
+  <symbol id="ic-construcao" viewBox="0 0 64 48"><path d="M10 44 v-34 h6 v34 M13 10 h34 M47 10 v8 M13 16 l10 -6 M30 44 v-20 h20 v20 M34 30 h4 M42 30 h4 M34 37 h4 M42 37 h4 M4 44 h56 M47 18 v6 M44 24 h6"/></symbol>
+  <symbol id="ic-textil" viewBox="0 0 64 48"><path d="M24 10 l8 5 l8 -5 l12 7 l-5 9 l-5 -3 v21 h-20 v-21 l-5 3 l-5 -9 z"/><path d="M28 10 a4 4 0 0 0 8 0"/></symbol>
+  <symbol id="ic-maquinas" viewBox="0 0 64 48"><circle cx="26" cy="24" r="9"/><circle cx="26" cy="24" r="3"/><path d="M26 11 v-4 M26 41 v4 M13 24 h-4 M39 24 h4 M35 15 l3 -3 M17 33 l-3 3 M35 33 l3 3 M17 15 l-3 -3"/><path d="M44 16 h12 v16 h-12 M47 12 v4 M53 12 v4 M47 32 v4 M53 32 v4"/></symbol>
+  <symbol id="ic-siderurgia" viewBox="0 0 64 48"><path d="M12 8 h18 v12 a9 9 0 0 1 -18 0 z M30 14 h6 M21 29 v6 M17 35 q4 8 8 0 M8 44 h48 M38 44 v-10 h16 v10 M38 34 l8 -8 l8 8"/></symbol>
+  <symbol id="ic-logistica" viewBox="0 0 64 48"><path d="M8 14 h30 v18 h-30 z M38 20 h10 l6 6 v6 h-16 z M14 14 v18 M22 14 v18 M30 14 v18 M4 38 h56"/><circle cx="16" cy="36" r="3"/><circle cx="44" cy="36" r="3"/></symbol>
+  <symbol id="ic-software" viewBox="0 0 64 48"><path d="M8 8 h48 v28 h-48 z M8 14 h48 M24 42 h16 M32 36 v6 M24 20 l-5 5 l5 5 M40 20 l5 5 l-5 5 M36 18 l-8 14"/><circle cx="12" cy="11" r="1"/><circle cx="16" cy="11" r="1"/></symbol>
+  <symbol id="ic-alimentos" viewBox="0 0 64 48"><path d="M16 6 v20 M16 10 q-6 0 -6 -5 q6 0 6 5 M16 10 q6 0 6 -5 q-6 0 -6 5 M16 18 q-6 0 -6 -5 q6 0 6 5 M16 18 q6 0 6 -5 q-6 0 -6 5"/><path d="M30 18 h22 l-3 26 h-16 z M34 18 v-6 h14 v6 M36 26 h12"/><path d="M10 34 q6 -6 12 0 q-6 6 -12 0" /></symbol>
+  <symbol id="ic-financeira" viewBox="0 0 64 48"><ellipse cx="22" cy="14" rx="12" ry="5"/><path d="M10 14 v8 q0 5 12 5 q12 0 12 -5 v-8 M10 22 v8 q0 5 12 5 q12 0 12 -5 v-8"/><path d="M40 40 l14 -14 M54 26 h-8 M54 26 v8"/></symbol>
+  <symbol id="ic-telecom" viewBox="0 0 64 48"><path d="M26 44 l4 -28 h4 l4 28 M28 30 h8"/><circle cx="32" cy="12" r="3"/><path d="M24 6 a12 12 0 0 0 0 12 M40 6 a12 12 0 0 1 0 12 M18 2 a20 20 0 0 0 0 20 M46 2 a20 20 0 0 1 0 20"/></symbol>
+  <symbol id="ic-quimica" viewBox="0 0 64 48"><path d="M24 6 v14 L12 40 a4 4 0 0 0 4 6 h32 a4 4 0 0 0 4 -6 L40 20 V6 M20 6 h24 M17 30 h30"/><circle cx="26" cy="36" r="2"/><circle cx="36" cy="38" r="2.5"/></symbol>
+  <symbol id="ic-cana" viewBox="0 0 64 48"><path d="M20 44 v-30 M20 20 h-6 M20 28 h-6 M20 36 h-6 M32 44 v-36 M32 14 h6 M32 22 h6 M32 30 h6 M44 44 v-26 M44 24 h6 M44 32 h6 M18 44 h4 M30 44 h4 M42 44 h4 M6 44 h52"/><path d="M20 14 q-4 -6 -2 -10 M32 8 q4 -6 2 -8"/></symbol>
+  <symbol id="ic-saude" viewBox="0 0 64 48"><path d="M14 44 v-28 h36 v28 M14 44 h36 M26 16 v-8 h12 v8"/><path d="M30 22 h4 v4 h4 v4 h-4 v4 h-4 v-4 h-4 v-4 h4 z"/><path d="M22 36 h6 M36 36 h6 M8 44 h48"/></symbol>
+  <symbol id="ic-farma" viewBox="0 0 64 48"><rect x="10" y="18" width="28" height="14" rx="7"/><path d="M24 18 v14"/><path d="M44 10 v8 M40 18 h14 l-2 18 a5 5 0 0 1 -10 0 z M43 26 h8"/></symbol>
+  <symbol id="ic-papel" viewBox="0 0 64 48"><path d="M18 44 v-10 M18 34 q-10 -2 -10 -12 q10 0 10 12 M18 30 q10 -2 10 -14 q-10 0 -10 14 M18 22 q-8 -2 -8 -10 q8 0 8 10"/><path d="M36 16 h16 v26 h-16 z M36 16 a4 13 0 0 0 0 26 M44 22 h4 M44 28 h4"/><path d="M6 44 h52"/></symbol>
+  <symbol id="ic-educacao" viewBox="0 0 64 48"><path d="M32 8 L8 18 l24 10 l24 -10 z M16 23 v11 q16 9 32 0 v-11 M56 18 v12 M54 32 h4 l-2 6 z"/></symbol>
+  <symbol id="ic-petroleo" viewBox="0 0 64 48"><path d="M10 44 h44 M16 44 L24 12 h8 l8 32 M20 28 h16 M28 12 v-8 M24 4 h8"/><path d="M44 44 v-14 h12 v14 M46 30 v-6 h8 v6"/></symbol>
+  <symbol id="ic-saneamento" viewBox="0 0 64 48"><path d="M24 6 q12 14 12 22 a12 12 0 0 1 -24 0 q0 -8 12 -22 z"/><path d="M42 20 h14 M42 20 v18 q0 6 -6 6 h-6 M40 16 h4 v8 h-4 z"/></symbol>
+  <symbol id="ic-seguro" viewBox="0 0 64 48"><path d="M32 4 L10 12 v14 q0 12 22 20 q22 -8 22 -20 V12 z"/><path d="M23 25 l6 7 l12 -14"/></symbol>
+  <symbol id="ic-minerio" viewBox="0 0 64 48"><path d="M4 42 h56 M8 42 L24 14 l8 13 l6 -8 l18 23 M20 22 h8"/><path d="M40 10 l10 10 M44 6 q6 -2 8 4 q-6 2 -8 -4"/></symbol>
+  <symbol id="ic-lazer" viewBox="0 0 64 48"><circle cx="32" cy="22" r="16"/><path d="M32 6 v32 M16 22 h32 M21 11 l22 22 M43 11 l-22 22 M26 42 h12 M32 38 v4"/></symbol>
+  <symbol id="ic-turismo" viewBox="0 0 64 48"><path d="M8 40 v-18 M8 28 h34 a10 10 0 0 1 10 10 v2 M52 40 v4 M8 44 v-4 M6 40 h50"/><path d="M14 28 v-6 h12 v6"/><path d="M48 16 q-6 -8 0 -12 q6 4 0 12 M48 16 v6"/></symbol>
+  <symbol id="ic-embalagem" viewBox="0 0 64 48"><path d="M10 18 l12 -8 h20 l12 8 v22 h-44 z M10 18 h44 M32 10 v30 M22 24 h-6 M48 24 h-6"/></symbol>
+  <symbol id="ic-bolsa" viewBox="0 0 64 48"><path d="M8 44 h48 M8 44 V6"/><path d="M18 30 v-10 M15 22 h6 v10 h-6 z M30 36 v-18 M27 22 h6 v12 h-6 z M42 26 v-14 M39 14 h6 v10 h-6 z"/><path d="M14 40 L26 28 L36 34 L52 14 M46 14 h6 v6"/></symbol>
+  <symbol id="ic-bebidas" viewBox="0 0 64 48"><path d="M20 6 h8 v8 l4 8 v22 h-16 V22 l4 -8 z M16 26 h16"/><path d="M38 14 h14 v26 a4 4 0 0 1 -4 4 h-6 a4 4 0 0 1 -4 -4 z M38 20 h14 M42 10 v4 M48 10 v4"/></symbol>
+  <symbol id="ic-grafica" viewBox="0 0 64 48"><path d="M18 18 v-12 h28 v12 M12 18 h40 v14 h-40 z M18 32 v12 h28 v-12 M22 38 h20 M22 42 h14"/><circle cx="46" cy="25" r="2"/></symbol>
+  <symbol id="ic-holding" viewBox="0 0 64 48"><path d="M24 4 h16 v10 h-16 z M32 14 v8 M12 22 h40 M12 22 v6 M32 22 v6 M52 22 v6"/><path d="M4 28 h16 v10 h-16 z M24 28 h16 v10 h-16 z M44 28 h16 v10 h-16 z"/></symbol>
+  </defs>
+  </svg>
   <div id="fr-simulador" hidden></div>
 </div>
 
@@ -752,6 +801,35 @@ icone_png: /assets/freedom/icone-180.png
      'FIES, Prouni e evasão mudam a receita sem aviso.']
   ];
 
+  // O texto de negócio não cabe na base de balanços: é escrito à mão e mora
+  // em teses.json, baixado só quando alguém abre uma tese. São 90 KB que não
+  // fazem falta para quem só quer a lista.
+  var TESES = null, baixandoTeses = null;
+
+  function carregarTeses() {
+    if (!baixandoTeses) {
+      baixandoTeses = fetch('teses.json')
+        .then(function (r) { return r.json(); })
+        .then(function (j) { TESES = j; return j; })
+        .catch(function () {
+          // sem o arquivo a tese ainda sai, só sem os textos de negócio
+          TESES = { setores: {}, depara: {}, empresas: {} };
+          return TESES;
+        });
+    }
+    return baixandoTeses;
+  }
+
+  function perfilDe(d) {
+    return (TESES && TESES.empresas && TESES.empresas[String(d.codigo_cvm)]) || null;
+  }
+
+  function setorDe(d) {
+    if (!TESES || !TESES.setores) { return null; }
+    var familia = (TESES.depara || {})[d.setor];
+    return familia ? TESES.setores[familia] || null : null;
+  }
+
   function mediaDe(vals) {
     var v = vals.filter(function (x) { return x !== null && x !== undefined; });
     if (!v.length) { return null; }
@@ -1028,9 +1106,50 @@ icone_png: /assets/freedom/icone-180.png
         }).join('') + '</ul>';
     }
 
-    return (texto ? '<p>' + esc(texto) + '</p>' : '') + dinheiro +
+    var perfil = perfilDe(d);
+    var quem = '';
+    if (perfil) {
+      quem = '<p>' + esc(perfil.resumo) + '</p>' +
+        '<div class="subtitulo-bloco">Como entra o dinheiro</div>' +
+        '<p>' + esc(perfil.como_ganha) + '</p>';
+    }
+
+    // o cadastro da CVM é seco, mas é o dado oficial: entra depois do texto,
+    // como complemento, e sozinho quando não há perfil escrito
+    var cadastro = (texto ? '<p>' + esc(texto) + '</p>' : '') + dinheiro;
+    if (perfil) {
+      cadastro = (texto || dinheiro)
+        ? '<div class="subtitulo-bloco">No cadastro da CVM</div>' + cadastro : '';
+    }
+
+    var assinatura = perfil && TESES && TESES.escrito_em
+      ? '<p class="perfil-data">Perfil da empresa escrito em ' +
+        esc(TESES.escrito_em) + ' a partir de fontes públicas. Os números das ' +
+        'outras seções vêm da CVM e se atualizam sozinhos; este texto não.</p>'
+      : '';
+
+    return quem + blocoSetor(d) + cadastro +
       '<div class="fatos" style="margin-top:4px">' + fatos.join('') + '</div>' +
-      filhas;
+      filhas + assinatura;
+  }
+
+  // Como este tipo de negócio ganha dinheiro. Vale para a família inteira de
+  // setores, então vem separado do que é específico da companhia.
+  function blocoSetor(d) {
+    var st = setorDe(d);
+    if (!st) { return ''; }
+    var familia = (TESES.depara || {})[d.setor] || d.setor;
+    return '<div class="setor-bloco">' +
+      '<div class="cabeca">' +
+      '<span class="ilustra"><svg viewBox="0 0 64 48" role="img" aria-label="' +
+      esc(familia) + '"><use href="#ic-' + esc(st.icone) + '"></use></svg></span>' +
+      '<span class="titulo">Como este setor ganha dinheiro<b>' +
+      esc(familia) + '</b></span></div>' +
+      '<p>' + esc(st.como) + '</p>' +
+      '<p><b>De onde vem a receita.</b> ' + esc(st.receita) + '</p>' +
+      '<p><b>Para onde vai o custo.</b> ' + esc(st.custo) + '</p>' +
+      '<p><b>O que separa uma boa de uma ruim.</b> ' + esc(st.boa_ruim) + '</p>' +
+      '</div>';
   }
 
   function blocoFinanceira(d, a) {
@@ -1306,10 +1425,20 @@ icone_png: /assets/freedom/icone-180.png
       return '<li><b>' + esc(s.titulo) + '.</b> ' + esc(s.detalhe) + '</li>';
     });
 
-    for (var i = 0; i < RISCO_SETOR.length; i++) {
-      if (RISCO_SETOR[i][0].test(d.setor)) {
-        itens.push('<li><b>' + RISCO_SETOR[i][1] + '.</b> ' + RISCO_SETOR[i][2] + '</li>');
-        break;
+    // risco escrito para esta empresa e para o setor dela abrem a lista: são
+    // mais informativos que o checklist derivado do balanço
+    var perfil = perfilDe(d), st = setorDe(d);
+    if (perfil && perfil.atencao) {
+      itens.unshift('<li><b>Próprio desta empresa.</b> ' + esc(perfil.atencao) + '</li>');
+    }
+    if (st && st.atencao) {
+      itens.push('<li><b>Próprio do setor.</b> ' + esc(st.atencao) + '</li>');
+    } else {
+      for (var i = 0; i < RISCO_SETOR.length; i++) {
+        if (RISCO_SETOR[i][0].test(d.setor)) {
+          itens.push('<li><b>' + RISCO_SETOR[i][1] + '.</b> ' + RISCO_SETOR[i][2] + '</li>');
+          break;
+        }
       }
     }
     if (a.estatal) {
@@ -1698,9 +1827,13 @@ icone_png: /assets/freedom/icone-180.png
       // voltar de um papel da NYSE tem que cair na lista da NYSE
       if (BASE[t].bolsa !== bolsaAtual) { trocarBolsa(BASE[t].bolsa); }
       if (sub === 'TESE') {
-        montarTese(t);
+        elTese.innerHTML = '<p class="carregando">montando a tese…</p>';
         elTese.hidden = false;
         document.title = 'Tese de investimentos · ' + t + ' · ' + TITULO;
+        carregarTeses().then(function () {
+          // se a pessoa saiu daqui enquanto o arquivo baixava, não sobrescreve
+          if (!elTese.hidden) { montarTese(t); }
+        });
       } else {
         montarDetalhe(t);
         elDetalhe.hidden = false;
