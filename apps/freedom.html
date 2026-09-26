@@ -171,7 +171,11 @@ icone_png: /assets/freedom/icone-180.png
 #fr .div-texto { font-size:13.5px; color:#4a5568; }
 #fr .pago { font-size:10px; font-weight:700; letter-spacing:.3px; color:#1e5c3a;
             background:#e6f4ec; border:1px solid #b7ddc7; border-radius:20px;
-            padding:2px 7px; }
+            padding:2px 7px; white-space:nowrap; }
+/* o número ao lado do selo: um pouco maior que o rótulo e sem dançar de
+   largura entre um papel e outro */
+#fr .pago b { font-size:11px; letter-spacing:0; font-variant-numeric:tabular-nums;
+              margin-left:1px; }
 #fr .carregando { color: var(--fraco); padding: 30px 0; text-align:center; }
 
 #fr .botao {
@@ -398,8 +402,14 @@ icone_png: /assets/freedom/icone-180.png
     var posicao = d.posicao
       ? '<span class="posicao" title="posição no ranking das boas">#' +
         d.posicao + '</span>' : '';
+    // o yield entra junto do selo, mas só quando existe: 66 boas pagadoras da
+    // B3 não têm dividend yield publicado, e nelas o selo sai sozinho
+    var dy = d.indicadores && d.indicadores['Div.Yield'];
     var paga = (d.dividendos && d.dividendos.situacao === 'bom')
-      ? '<span class="pago" title="boa pagadora de dividendos">DIVIDENDOS</span>' : '';
+      ? '<span class="pago" title="boa pagadora de dividendos' +
+        (dy ? ' &middot; dividend yield dos últimos 12 meses' : '') +
+        '">DIVIDENDOS' + (dy ? ' <b>' + num(dy, 1) + '%</b>' : '') +
+        '</span>' : '';
     // a posição no ranking vem sempre primeiro
     return posicao + '<span class="badge ' + d.veredito + '">' +
       ROTULO[d.veredito] + '</span>' + paga;
