@@ -1,0 +1,846 @@
+---
+layout: null
+title: Teleprompter
+permalink: /apps/teleprompter/
+description: >-
+  Teleprompter que roda no navegador. Cole o texto ou abra um arquivo .txt ou
+  .md, ajuste velocidade, fonte, cores e espelhamento, e leia em tela cheia.
+---
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="dark">
+{%- seo -%}
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23000'/%3E%3Cpath d='M14 20h36M14 30h28M14 40h36M14 50h20' stroke='%23fff' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+{%- if jekyll.environment == 'production' and site.google_analytics -%}
+  {%- include google-analytics.html -%}
+{%- endif -%}
+{% raw %}
+<style>
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: #000; color: #fff;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+[hidden] { display: none !important; }
+
+/* ───────────── Tela de preparo ───────────── */
+#setup { max-width: 1120px; margin: 0 auto; padding: 16px 16px 0; }
+.topo { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 18px; }
+.topo a { color: #9a9a9a; text-decoration: none; font-size: 14px; }
+.topo a:hover { color: #fff; }
+.marca { display: flex; align-items: center; gap: 10px; }
+.marca h1 { font-size: 22px; margin: 0; letter-spacing: -.01em; }
+.sub { color: #9a9a9a; font-size: 14px; margin: -10px 0 18px; }
+.grade { display: grid; grid-template-columns: 1fr; gap: 16px; }
+@media (min-width: 900px) { .grade { grid-template-columns: minmax(0, 1fr) 340px; align-items: start; } }
+
+.bloco { background: #0d0d0d; border: 1px solid #262626; border-radius: 12px; padding: 14px; }
+.barra-texto { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 10px; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 40px; padding: 8px 14px; border-radius: 9px;
+  background: #1c1c1c; border: 1px solid #333; color: #fff; font-size: 14px; text-decoration: none;
+}
+.btn:hover { background: #262626; }
+.btn:focus-visible, .ctl:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: 2px solid #fff; outline-offset: 2px;
+}
+/* o botão de iniciar fica sempre à mão, mesmo com os ajustes longos no celular */
+.acao {
+  position: sticky; bottom: 0; z-index: 2; margin: 0 -16px; padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+  background: linear-gradient(to bottom, rgba(0,0,0,0), #000 35%);
+}
+.btn-primario {
+  width: 100%; min-height: 54px; font-size: 17px; font-weight: 700;
+  background: #fff; color: #000; border-color: #fff;
+}
+.btn-primario:hover { background: #e6e6e6; }
+.btn-primario:disabled { opacity: .4; cursor: not-allowed; }
+.arquivo-info { color: #9a9a9a; font-size: 13px; margin-left: auto; }
+#texto {
+  display: block; width: 100%; min-height: 52vh; resize: vertical;
+  background: #000; color: #fff; border: 1px solid #333; border-radius: 9px;
+  padding: 14px; font-size: 16px; line-height: 1.55; tab-size: 2;
+}
+#texto::placeholder { color: #666; }
+.estat { display: flex; flex-wrap: wrap; gap: 6px 14px; color: #8a8a8a; font-size: 13px; margin-top: 8px; }
+.dica { color: #777; font-size: 12.5px; margin-top: 10px; line-height: 1.5; }
+.dica kbd {
+  font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 11.5px;
+  background: #1c1c1c; border: 1px solid #333; border-bottom-width: 2px; border-radius: 5px; padding: 0 5px;
+}
+body.arrastando #setup .bloco-texto { border-color: #fff; border-style: dashed; }
+
+/* ───────────── Painel de ajustes ───────────── */
+.ajustes h2 { font-size: 15px; margin: 0 0 12px; }
+.campo { margin-bottom: 14px; }
+.campo:last-child { margin-bottom: 0; }
+.campo > label, .campo .rot { display: flex; justify-content: space-between; align-items: baseline; font-size: 13.5px; color: #cfcfcf; margin-bottom: 6px; }
+.campo output { color: #fff; font-variant-numeric: tabular-nums; font-weight: 600; }
+.campo select {
+  width: 100%; min-height: 40px; padding: 8px 10px; border-radius: 9px;
+  background: #000; border: 1px solid #333;
+}
+.dupla { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+input[type=range] { width: 100%; accent-color: #fff; height: 28px; margin: 0; }
+.cores { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.cor { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #cfcfcf; }
+.cor input { width: 44px; height: 34px; padding: 2px; border-radius: 8px; border: 1px solid #333; background: #000; }
+.btn-mini { min-height: 34px; padding: 4px 10px; font-size: 12.5px; }
+.campo > label.check { justify-content: flex-start; margin-bottom: 0; }
+.check { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #e6e6e6; min-height: 34px; cursor: pointer; }
+.check input { width: 20px; height: 20px; accent-color: #fff; margin: 0; }
+.sep { border: 0; border-top: 1px solid #262626; margin: 16px 0; }
+
+/* ───────────── Teleprompter ───────────── */
+#prompter {
+  --fg: #fff; --bg: #000; --fs: 56px; --lh: 1.4; --w: 90; --guide: 35;
+  position: fixed; inset: 0; background: var(--bg); color: var(--fg); z-index: 10;
+  overflow: hidden;
+}
+#view { position: absolute; inset: 0; }
+#rolo {
+  position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+  cursor: pointer;
+}
+#rolo::-webkit-scrollbar { display: none; }
+#palco {
+  width: calc(var(--w) * 1%); max-width: 100%; margin: 0 auto;
+  padding: calc(var(--guide) * 1vh) 0 calc((100 - var(--guide)) * 1vh);
+  padding: calc(var(--guide) * 1dvh) 0 calc((100 - var(--guide)) * 1dvh);
+  font-size: var(--fs); line-height: var(--lh);
+  overflow-wrap: break-word; word-break: break-word;
+  user-select: none; -webkit-user-select: none;
+}
+#palco > :first-child { margin-top: 0; }
+#palco p { margin: 0 0 .7em; }
+#palco h1, #palco h2, #palco h3, #palco h4, #palco h5, #palco h6 { margin: .2em 0 .5em; line-height: 1.2; font-weight: 800; }
+#palco h1 { font-size: 1.45em; }
+#palco h2 { font-size: 1.25em; }
+#palco h3 { font-size: 1.1em; }
+#palco h4, #palco h5, #palco h6 { font-size: 1em; text-decoration: underline; text-underline-offset: .15em; }
+#palco ul, #palco ol { margin: 0 0 .7em; padding-left: 1.2em; }
+#palco li { margin-bottom: .2em; }
+#palco blockquote { margin: 0 0 .7em; padding-left: .6em; border-left: .12em solid currentColor; opacity: .8; }
+#palco blockquote p:last-child { margin-bottom: 0; }
+#palco hr { border: 0; border-top: .06em solid currentColor; opacity: .5; margin: .6em 0 1.1em; }
+#palco strong { font-weight: 800; }
+#palco code, #palco pre { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .85em; }
+#palco pre { white-space: pre-wrap; margin: 0 0 .7em; }
+#palco .fim { text-align: center; opacity: .45; font-size: .6em; letter-spacing: .3em; margin-top: 1.4em; }
+
+/* linha-guia de leitura */
+#guia { position: absolute; left: 0; right: 0; top: calc(var(--guide) * 1%); height: 0; pointer-events: none; }
+#guia::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0;
+  border-top: 2px solid var(--fg); opacity: .22;
+}
+#guia .seta {
+  position: absolute; top: -12px; width: 0; height: 0;
+  border-top: 12px solid transparent; border-bottom: 12px solid transparent; opacity: .85;
+}
+#guia .seta.esq { left: 4px; border-left: 16px solid var(--fg); }
+#guia .seta.dir { right: 4px; border-right: 16px solid var(--fg); }
+
+/* barra de progresso + controles */
+.hud { transition: opacity .25s ease; }
+#prompter.oculto .hud { opacity: 0; pointer-events: none; }
+#prompter.oculto, #prompter.oculto #rolo { cursor: none; }
+#progresso { position: absolute; left: 0; right: 0; top: 0; height: 3px; background: rgba(128,128,128,.25); z-index: 5; }
+#progresso i { display: block; height: 100%; width: 0; background: #fff; }
+#tempo {
+  position: absolute; top: calc(10px + env(safe-area-inset-top)); right: 12px; z-index: 5;
+  font-size: 13px; font-variant-numeric: tabular-nums; color: #fff;
+  background: rgba(0,0,0,.7); border: 1px solid #333; border-radius: 99px; padding: 4px 10px;
+}
+#controles {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 5;
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px;
+  width: max-content; max-width: calc(100% - 16px);
+  background: rgba(15,15,15,.92); border: 1px solid #333; border-radius: 16px; padding: 6px;
+  color: #fff; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+.grupo { display: flex; align-items: center; gap: 2px; background: #000; border: 1px solid #2a2a2a; border-radius: 11px; padding: 2px; }
+.ctl {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 44px; height: 44px; padding: 0 8px; border: 0; border-radius: 9px;
+  background: transparent; color: #fff; font-size: 15px; font-weight: 600;
+}
+.ctl:hover { background: #262626; }
+.ctl svg { width: 22px; height: 22px; fill: currentColor; }
+.ctl.play { background: #fff; color: #000; min-width: 56px; }
+.ctl.play:hover { background: #e0e0e0; }
+.valor { min-width: 52px; text-align: center; font-size: 13px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.valor small { display: block; font-size: 10px; color: #8a8a8a; font-weight: 400; }
+@media (max-width: 520px) {
+  .ctl { min-width: 40px; height: 42px; padding: 0 6px; }
+  .valor { min-width: 40px; }
+  #controles { gap: 4px; padding: 5px; }
+}
+
+#contagem {
+  position: absolute; inset: 0; z-index: 4; display: flex; align-items: center; justify-content: center;
+  font-size: min(40vw, 40vh); font-weight: 800; color: var(--fg); background: color-mix(in srgb, var(--bg) 70%, transparent);
+  pointer-events: none;
+}
+
+/* gaveta de ajustes durante a leitura */
+#gaveta { position: absolute; inset: 0; z-index: 6; }
+#gaveta .fundo { position: absolute; inset: 0; background: rgba(0,0,0,.55); }
+#gaveta .painel {
+  position: absolute; top: 0; right: 0; bottom: 0; width: min(360px, 92vw); overflow-y: auto;
+  background: #0d0d0d; border-left: 1px solid #262626; color: #fff;
+  padding: calc(14px + env(safe-area-inset-top)) 14px calc(20px + env(safe-area-inset-bottom));
+}
+#gaveta .cab { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+#gaveta .cab strong { font-size: 15px; }
+#gaveta .ajustes h2 { display: none; }
+</style>
+{% endraw %}
+</head>
+<body>
+{% raw %}
+<!-- ═════════════ PREPARO ═════════════ -->
+<main id="setup">
+  <div class="topo">
+    <div class="marca">
+      <svg width="34" height="34" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#fff"/><path d="M14 20h36M14 30h28M14 40h36M14 50h20" stroke="#000" stroke-width="5" stroke-linecap="round"/></svg>
+      <h1>Teleprompter</h1>
+    </div>
+    <a href="/apps/">← Apps</a>
+  </div>
+  <p class="sub">Cole o texto ou abra um arquivo <b>.txt</b> ou <b>.md</b>. Nada sai do seu navegador.</p>
+
+  <div class="grade">
+    <section class="bloco bloco-texto" aria-label="Texto">
+      <div class="barra-texto">
+        <label class="btn" for="arquivo">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          Abrir arquivo
+        </label>
+        <input id="arquivo" type="file" accept=".txt,.md,.markdown,.mdown,.text,text/plain,text/markdown" hidden>
+        <button class="btn" id="limpar" type="button">Limpar</button>
+        <span class="arquivo-info" id="arquivoInfo"></span>
+      </div>
+      <textarea id="texto" spellcheck="false" placeholder="Cole aqui o seu roteiro, ou arraste um arquivo .txt / .md para esta área…"></textarea>
+      <div class="estat" id="estat"></div>
+      <p class="dica">
+        Na leitura: <kbd>Espaço</kbd> play/pausa · <kbd>↑</kbd><kbd>↓</kbd> velocidade ·
+        <kbd>←</kbd><kbd>→</kbd> volta/avança · <kbd>+</kbd><kbd>−</kbd> fonte ·
+        <kbd>Home</kbd> início · <kbd>M</kbd> espelhar · <kbd>F</kbd> tela cheia · <kbd>Esc</kbd> sair.
+        No celular, toque no texto para pausar e arraste para rolar.
+      </p>
+    </section>
+
+    <aside class="bloco" id="slotAjustes">
+      <div class="ajustes" id="ajustes">
+        <h2>Ajustes</h2>
+
+        <div class="campo">
+          <label for="formato">Formato do texto</label>
+          <select id="formato" data-k="format">
+            <option value="md">Markdown</option>
+            <option value="txt">Texto puro</option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label for="velocidade">Velocidade <output data-out="speed"></output></label>
+          <input id="velocidade" type="range" min="1" max="40" step="0.5" data-k="speed">
+        </div>
+
+        <div class="campo">
+          <label for="fonte">Tamanho da fonte <output data-out="fontSize"></output></label>
+          <input id="fonte" type="range" min="16" max="180" step="1" data-k="fontSize">
+        </div>
+
+        <div class="campo">
+          <label for="entrelinha">Espaço entre linhas <output data-out="lineHeight"></output></label>
+          <input id="entrelinha" type="range" min="1" max="2.5" step="0.05" data-k="lineHeight">
+        </div>
+
+        <div class="campo">
+          <label for="largura">Largura do texto <output data-out="width"></output></label>
+          <input id="largura" type="range" min="40" max="100" step="1" data-k="width">
+        </div>
+
+        <div class="dupla campo">
+          <div>
+            <label class="rot" for="familia">Fonte</label>
+            <select id="familia" data-k="font">
+              <option value="sans">Sem serifa</option>
+              <option value="serif">Serifada</option>
+              <option value="mono">Monoespaçada</option>
+            </select>
+          </div>
+          <div>
+            <label class="rot" for="peso">Peso</label>
+            <select id="peso" data-k="weight">
+              <option value="400">Normal</option>
+              <option value="600">Médio</option>
+              <option value="700">Negrito</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="dupla campo">
+          <div>
+            <label class="rot" for="alinhamento">Alinhamento</label>
+            <select id="alinhamento" data-k="align">
+              <option value="left">Esquerda</option>
+              <option value="center">Centro</option>
+              <option value="justify">Justificado</option>
+            </select>
+          </div>
+          <div>
+            <label class="rot" for="contagemSel">Contagem</label>
+            <select id="contagemSel" data-k="countdown">
+              <option value="0">Sem contagem</option>
+              <option value="3">3 segundos</option>
+              <option value="5">5 segundos</option>
+              <option value="10">10 segundos</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="campo">
+          <span class="rot">Cores</span>
+          <div class="cores">
+            <label class="cor"><input type="color" data-k="fg" aria-label="Cor do texto"> Texto</label>
+            <label class="cor"><input type="color" data-k="bg" aria-label="Cor do fundo"> Fundo</label>
+            <button type="button" class="btn btn-mini" id="corPadrao">Preto e branco</button>
+          </div>
+        </div>
+
+        <hr class="sep">
+
+        <div class="campo">
+          <label class="check"><input type="checkbox" data-k="guide"> Linha-guia de leitura</label>
+        </div>
+        <div class="campo">
+          <label for="guiaPos">Altura da linha-guia <output data-out="guidePos"></output></label>
+          <input id="guiaPos" type="range" min="10" max="80" step="1" data-k="guidePos">
+        </div>
+        <div class="campo">
+          <label class="check"><input type="checkbox" data-k="mirrorX"> Espelhar (para vidro de teleprompter)</label>
+          <label class="check"><input type="checkbox" data-k="mirrorY"> Inverter de cabeça para baixo</label>
+          <label class="check" id="campoTelaCheia"><input type="checkbox" data-k="fullscreen"> Tela cheia ao iniciar</label>
+        </div>
+
+        <button type="button" class="btn btn-mini" id="restaurar" style="margin-top:4px">Restaurar padrões</button>
+      </div>
+    </aside>
+  </div>
+  <div class="acao"><button class="btn btn-primario" id="iniciar" type="button">▶ Iniciar teleprompter</button></div>
+</main>
+
+<!-- ═════════════ LEITURA ═════════════ -->
+<div id="prompter" hidden>
+  <div id="view">
+    <div id="rolo" tabindex="-1"><div id="palco"></div></div>
+    <div id="guia"><span class="seta esq"></span><span class="seta dir"></span></div>
+  </div>
+
+  <div id="progresso" class="hud"><i></i></div>
+  <div id="tempo" class="hud" aria-live="off">0:00</div>
+  <div id="contagem" hidden></div>
+
+  <div id="controles" class="hud" role="toolbar" aria-label="Controles do teleprompter">
+    <button class="ctl" data-acao="sair" title="Sair (Esc)" aria-label="Sair">
+      <svg viewBox="0 0 24 24"><path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg>
+    </button>
+    <button class="ctl" data-acao="inicio" title="Voltar ao início (Home)" aria-label="Voltar ao início">
+      <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+    </button>
+    <div class="grupo">
+      <button class="ctl" data-acao="vel-" title="Mais devagar (↓)" aria-label="Mais devagar">−</button>
+      <div class="valor"><span id="velValor">8</span><small>velocidade</small></div>
+      <button class="ctl" data-acao="vel+" title="Mais rápido (↑)" aria-label="Mais rápido">+</button>
+    </div>
+    <button class="ctl play" data-acao="play" title="Play/pausa (Espaço)" aria-label="Play">
+      <svg viewBox="0 0 24 24" id="icoPlay"><path d="M8 5v14l11-7z"/></svg>
+      <svg viewBox="0 0 24 24" id="icoPausa" hidden><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+    </button>
+    <div class="grupo">
+      <button class="ctl" data-acao="fonte-" title="Fonte menor (−)" aria-label="Diminuir fonte" style="font-size:13px">A</button>
+      <div class="valor"><span id="fonteValor">56</span><small>fonte</small></div>
+      <button class="ctl" data-acao="fonte+" title="Fonte maior (+)" aria-label="Aumentar fonte" style="font-size:19px">A</button>
+    </div>
+    <button class="ctl" data-acao="espelhar" title="Espelhar (M)" aria-label="Espelhar">
+      <svg viewBox="0 0 24 24"><path d="M11 2h2v20h-2zM9 6v12L3 12zm6 0 6 6-6 6z"/></svg>
+    </button>
+    <button class="ctl" data-acao="telacheia" id="btnTelaCheia" title="Tela cheia (F)" aria-label="Tela cheia">
+      <svg viewBox="0 0 24 24"><path d="M5 5h5v2H7v3H5zm9 0h5v5h-2V7h-3zM5 14h2v3h3v2H5zm12 0h2v5h-5v-2h3z"/></svg>
+    </button>
+    <button class="ctl" data-acao="ajustes" title="Ajustes" aria-label="Ajustes">
+      <svg viewBox="0 0 24 24"><path d="M19.4 13a7.5 7.5 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.5 7.5 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1c.5.4 1.1.7 1.7 1l.4 2.6h4l.4-2.6c.6-.3 1.2-.6 1.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg>
+    </button>
+  </div>
+
+  <div id="gaveta" hidden>
+    <div class="fundo" data-acao="fechar-ajustes"></div>
+    <div class="painel" role="dialog" aria-label="Ajustes">
+      <div class="cab"><strong>Ajustes</strong><button class="ctl" data-acao="fechar-ajustes" aria-label="Fechar ajustes">
+        <svg viewBox="0 0 24 24"><path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg>
+      </button></div>
+      <div id="slotGaveta"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const CHAVE = 'teleprompter:v1';
+  const $ = (s) => document.querySelector(s);
+  const el = {
+    setup: $('#setup'), prompter: $('#prompter'), view: $('#view'), rolo: $('#rolo'), palco: $('#palco'),
+    guia: $('#guia'), texto: $('#texto'), arquivo: $('#arquivo'), arquivoInfo: $('#arquivoInfo'),
+    estat: $('#estat'), ajustes: $('#ajustes'), slotAjustes: $('#slotAjustes'), slotGaveta: $('#slotGaveta'),
+    gaveta: $('#gaveta'), contagem: $('#contagem'), progresso: $('#progresso i'), tempo: $('#tempo'),
+    velValor: $('#velValor'), fonteValor: $('#fonteValor'), icoPlay: $('#icoPlay'), icoPausa: $('#icoPausa'),
+    btnPlay: document.querySelector('[data-acao="play"]'), iniciar: $('#iniciar'),
+  };
+
+  // ───────── Configurações ─────────
+  const fontePadrao = () => Math.round(Math.min(72, Math.max(30, window.innerWidth / 15)));
+  const PADRAO = {
+    format: 'md', speed: 8, fontSize: fontePadrao(), lineHeight: 1.4, width: 90,
+    font: 'sans', weight: '600', align: 'left', countdown: '3',
+    fg: '#ffffff', bg: '#000000', guide: true, guidePos: 35,
+    mirrorX: false, mirrorY: false, fullscreen: true,
+  };
+  const FAMILIAS = {
+    sans: 'system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif',
+    serif: 'Georgia, "Times New Roman", serif',
+    mono: 'ui-monospace, Menlo, Consolas, "Liberation Mono", monospace',
+  };
+
+  const ler = (k) => { try { return localStorage.getItem(CHAVE + ':' + k); } catch { return null; } };
+  const gravar = (k, v) => { try { localStorage.setItem(CHAVE + ':' + k, v); } catch { /* sem armazenamento */ } };
+
+  let S = { ...PADRAO };
+  try { Object.assign(S, JSON.parse(ler('ajustes') || '{}')); } catch { /* ignora */ }
+  const salvar = () => gravar('ajustes', JSON.stringify(S));
+
+  // ───────── Markdown → HTML (sem dependências) ─────────
+  const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  function inline(s) {
+    s = esc(s);
+    const codigos = [];
+    s = s.replace(/`([^`]+)`/g, (_, c) => { codigos.push(c); return '\u0000' + (codigos.length - 1) + '\u0000'; });
+    s = s.replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1');          // imagem → texto alternativo
+    s = s.replace(/\[([^\]]+)\]\([^)]*\)/g, '$1');            // link → só o texto
+    s = s.replace(/(\*\*|__)(?=\S)([\s\S]*?\S)\1/g, '<strong>$2</strong>');
+    s = s.replace(/\*(?=\S)([^*]*?\S)\*/g, '<em>$1</em>');
+    s = s.replace(/(^|[^\w])_(?=\S)([^_]*?\S)_(?![\w])/g, '$1<em>$2</em>');
+    s = s.replace(/~~(?=\S)([\s\S]*?\S)~~/g, '<del>$1</del>');
+    s = s.replace(/==(?=\S)([\s\S]*?\S)==/g, '<mark style="background:none;color:inherit;text-decoration:underline">$1</mark>');
+    s = s.replace(/\\([\\`*_{}\[\]()#+\-.!~>|])/g, '$1');   // escapes do markdown
+    return s.replace(/\u0000(\d+)\u0000/g, (_, i) => '<code>' + codigos[i] + '</code>');
+  }
+
+  function markdown(fonte) {
+    const linhas = fonte.split('\n');
+    const out = [];
+    let par = [], lista = null;
+    const fechaPar = () => { if (par.length) { out.push('<p>' + par.map(inline).join('<br>') + '</p>'); par = []; } };
+    const fechaLista = () => {
+      if (lista) { out.push('<' + lista.tipo + '>' + lista.itens.map((x) => '<li>' + inline(x) + '</li>').join('') + '</' + lista.tipo + '>'); lista = null; }
+    };
+    const fecha = () => { fechaPar(); fechaLista(); };
+
+    for (let i = 0; i < linhas.length; i++) {
+      const l = linhas[i];
+      let m;
+      if (/^\s*(```|~~~)/.test(l)) {
+        fecha();
+        const cerca = l.trim().slice(0, 3), cod = [];
+        while (++i < linhas.length && !linhas[i].trim().startsWith(cerca)) cod.push(linhas[i]);
+        out.push('<pre>' + esc(cod.join('\n')) + '</pre>');
+      } else if (/^\s*$/.test(l)) {
+        fecha();
+      } else if ((m = l.match(/^ {0,3}(#{1,6})\s+(.*?)(\s+#+)?\s*$/))) {
+        fecha();
+        out.push('<h' + m[1].length + '>' + inline(m[2]) + '</h' + m[1].length + '>');
+      } else if (/^ {0,3}([-*_])(\s*\1){2,}\s*$/.test(l)) {
+        fecha(); out.push('<hr>');
+      } else if (/^ {0,3}>/.test(l)) {
+        fecha();
+        const citacao = [];
+        while (i < linhas.length && /^ {0,3}>/.test(linhas[i])) citacao.push(linhas[i++].replace(/^ {0,3}> ?/, ''));
+        i--;
+        out.push('<blockquote>' + markdown(citacao.join('\n')) + '</blockquote>');
+      } else if ((m = l.match(/^\s*([-*+]|\d{1,9}[.)])\s+(.*)$/))) {
+        fechaPar();
+        const tipo = /\d/.test(m[1]) ? 'ol' : 'ul';
+        if (!lista || lista.tipo !== tipo) { fechaLista(); lista = { tipo, itens: [] }; }
+        lista.itens.push(m[2].replace(/^\[[ xX]\]\s+/, ''));
+      } else if (lista && /^\s{2,}\S/.test(l)) {
+        lista.itens[lista.itens.length - 1] += ' ' + l.trim();
+      } else {
+        fechaLista();
+        par.push(l.trim());
+      }
+    }
+    fecha();
+    return out.join('');
+  }
+
+  function textoPuro(fonte) {
+    return fonte.split(/\n\s*\n/).filter((b) => b.trim())
+      .map((b) => '<p>' + b.split('\n').map(esc).join('<br>') + '</p>').join('');
+  }
+
+  const normaliza = (t) => t.replace(/^﻿/, '').replace(/\r\n?/g, '\n');
+
+  // ───────── Tela de preparo ─────────
+  el.texto.value = ler('texto') ?? EXEMPLO();
+  let salvarTexto;
+  el.texto.addEventListener('input', () => {
+    clearTimeout(salvarTexto);
+    salvarTexto = setTimeout(() => gravar('texto', el.texto.value), 300);
+    atualizaEstat();
+  });
+
+  function atualizaEstat() {
+    const t = el.texto.value;
+    const palavras = (t.match(/[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu) || []).length;
+    const min = palavras / 140;
+    el.estat.innerHTML = palavras
+      ? `<span>${palavras.toLocaleString('pt-BR')} palavras</span><span>${t.length.toLocaleString('pt-BR')} caracteres</span><span>~${min < 1 ? Math.max(1, Math.round(min * 60)) + ' s' : Math.round(min) + ' min'} de fala (140 palavras/min)</span>`
+      : '';
+    el.iniciar.disabled = !t.trim();
+  }
+
+  async function abreArquivo(f) {
+    if (!f) return;
+    if (f.size > 5 * 1024 * 1024) { alert('Arquivo grande demais (máximo de 5 MB).'); return; }
+    const bytes = new Uint8Array(await f.arrayBuffer());
+    let txt;
+    try { txt = new TextDecoder('utf-8', { fatal: true }).decode(bytes); }
+    catch { txt = new TextDecoder('windows-1252').decode(bytes); }   // .txt salvo no Bloco de Notas antigo
+    el.texto.value = normaliza(txt);
+    gravar('texto', el.texto.value);
+    const md = /\.(md|markdown|mdown)$/i.test(f.name) || f.type === 'text/markdown';
+    S.format = md ? 'md' : 'txt';
+    salvar(); sincroniza();
+    el.arquivoInfo.textContent = f.name;
+    atualizaEstat();
+  }
+
+  el.arquivo.addEventListener('change', () => { abreArquivo(el.arquivo.files[0]); el.arquivo.value = ''; });
+  $('#limpar').addEventListener('click', () => {
+    el.texto.value = ''; gravar('texto', ''); el.arquivoInfo.textContent = ''; atualizaEstat(); el.texto.focus();
+  });
+
+  let arrastos = 0;
+  addEventListener('dragenter', (e) => { if (!el.setup.hidden && e.dataTransfer?.types.includes('Files')) { arrastos++; document.body.classList.add('arrastando'); } });
+  addEventListener('dragleave', () => { if (--arrastos <= 0) { arrastos = 0; document.body.classList.remove('arrastando'); } });
+  addEventListener('dragover', (e) => { if (e.dataTransfer?.types.includes('Files')) e.preventDefault(); });
+  addEventListener('drop', (e) => {
+    if (!e.dataTransfer?.files.length) return;
+    e.preventDefault(); arrastos = 0; document.body.classList.remove('arrastando');
+    if (!el.setup.hidden) abreArquivo(e.dataTransfer.files[0]);
+  });
+
+  // ───────── Ligação dos ajustes ─────────
+  const formatos = {
+    speed: (v) => String(v), fontSize: (v) => v + ' px', lineHeight: (v) => Number(v).toFixed(2),
+    width: (v) => v + '%', guidePos: (v) => v + '%',
+  };
+  const campos = [...el.ajustes.querySelectorAll('[data-k]')];
+
+  function sincroniza() {
+    for (const c of campos) {
+      const k = c.dataset.k;
+      if (c.type === 'checkbox') c.checked = !!S[k]; else c.value = S[k];
+    }
+    for (const o of el.ajustes.querySelectorAll('[data-out]')) o.textContent = formatos[o.dataset.out](S[o.dataset.out]);
+    el.velValor.textContent = S.speed;
+    el.fonteValor.textContent = S.fontSize;
+    $('#guiaPos').disabled = !S.guide;
+  }
+
+  for (const c of campos) {
+    c.addEventListener('input', () => {
+      const k = c.dataset.k;
+      const ancora = guardaPosicao();
+      if (c.type === 'checkbox') S[k] = c.checked;
+      else if (c.type === 'range') S[k] = Number(c.value);
+      else S[k] = c.value;
+      salvar(); sincroniza(); aplica();
+      if (k === 'format' && !el.prompter.hidden) renderiza();
+      ancora();
+    });
+  }
+
+  $('#corPadrao').addEventListener('click', () => { S.fg = '#ffffff'; S.bg = '#000000'; salvar(); sincroniza(); aplica(); });
+  $('#restaurar').addEventListener('click', () => {
+    const ancora = guardaPosicao();
+    const fmt = S.format;
+    S = { ...PADRAO, fontSize: fontePadrao(), format: fmt };
+    salvar(); sincroniza(); aplica(); ancora();
+  });
+
+  function aplica() {
+    const p = el.prompter.style;
+    p.setProperty('--fg', S.fg); p.setProperty('--bg', S.bg);
+    p.setProperty('--fs', S.fontSize + 'px'); p.setProperty('--lh', S.lineHeight);
+    p.setProperty('--w', S.width); p.setProperty('--guide', S.guidePos);
+    el.palco.style.fontFamily = FAMILIAS[S.font] || FAMILIAS.sans;
+    el.palco.style.fontWeight = S.weight;
+    el.palco.style.textAlign = S.align;
+    el.view.style.transform = `scale(${S.mirrorX ? -1 : 1}, ${S.mirrorY ? -1 : 1})`;
+    el.guia.hidden = !S.guide;
+    document.querySelector('meta[name=theme-color]').content = el.prompter.hidden ? '#000000' : S.bg;
+  }
+
+  // Mudar fonte/largura reflui o texto; guarda a fração lida para não perder o ponto.
+  function guardaPosicao() {
+    if (el.prompter.hidden) return () => {};
+    const f = pos / Math.max(1, maxScroll());
+    return () => { pos = f * maxScroll(); el.rolo.scrollTop = pos; ultimoSet = el.rolo.scrollTop; };
+  }
+
+  // ───────── Leitura ─────────
+  let tocando = false, pos = 0, ultimoT = 0, ultimoSet = -1, segurando = false, raf = 0;
+  let timerContagem = 0, travaTela = null;
+
+  const maxScroll = () => Math.max(0, el.rolo.scrollHeight - el.rolo.clientHeight);
+  // velocidade proporcional à fonte: com letra maior, mais pixels por segundo, mesmo ritmo de leitura
+  const pxPorSeg = () => S.speed * S.fontSize * 0.06;
+
+  function renderiza() {
+    const t = normaliza(el.texto.value);
+    el.palco.innerHTML = (S.format === 'md' ? markdown(t) : textoPuro(t)) + '<div class="fim">• • • FIM • • •</div>';
+  }
+
+  async function entra() {
+    if (!el.texto.value.trim()) return;
+    gravar('texto', el.texto.value);
+    renderiza();
+    el.slotGaveta.appendChild(el.ajustes);
+    el.setup.hidden = true;
+    el.prompter.hidden = false;
+    aplica(); sincroniza();
+    pos = 0; el.rolo.scrollTop = 0; ultimoSet = 0;
+    if (S.fullscreen && podeTelaCheia()) { try { await document.documentElement.requestFullscreen(); } catch { /* recusado */ } }
+    pedeTravaTela();
+    ultimoT = 0; cancelAnimationFrame(raf); raf = requestAnimationFrame(quadro);
+    mostraHud();
+    el.rolo.focus({ preventScroll: true });
+    tocar();
+  }
+
+  function sai() {
+    pausar();
+    cancelAnimationFrame(raf);
+    fechaGaveta();
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    travaTela?.release().catch(() => {}); travaTela = null;
+    el.slotAjustes.appendChild(el.ajustes);
+    el.prompter.hidden = true;
+    el.setup.hidden = false;
+    aplica();
+  }
+
+  function tocar() {
+    if (tocando || timerContagem) return;
+    if (pos >= maxScroll() - 1) { pos = 0; el.rolo.scrollTop = 0; ultimoSet = 0; }
+    const n = Number(S.countdown);
+    if (pos < 2 && n > 0) {
+      let r = n;
+      el.contagem.textContent = r; el.contagem.hidden = false;
+      timerContagem = setInterval(() => {
+        if (--r <= 0) { clearInterval(timerContagem); timerContagem = 0; el.contagem.hidden = true; comeca(); }
+        else el.contagem.textContent = r;
+      }, 1000);
+      atualizaBotao(true);
+      return;
+    }
+    comeca();
+  }
+  function comeca() { tocando = true; atualizaBotao(); agendaOcultar(); }
+  function pausar() {
+    if (timerContagem) { clearInterval(timerContagem); timerContagem = 0; el.contagem.hidden = true; }
+    tocando = false; atualizaBotao(); mostraHud();
+  }
+  const alterna = () => (tocando || timerContagem ? pausar() : tocar());
+
+  function atualizaBotao(forcaPausa) {
+    const t = tocando || forcaPausa;
+    el.icoPlay.hidden = t; el.icoPausa.hidden = !t;
+    el.btnPlay.setAttribute('aria-label', t ? 'Pausar' : 'Play');
+  }
+
+  function quadro(t) {
+    const dt = ultimoT ? Math.min(0.1, (t - ultimoT) / 1000) : 0;
+    ultimoT = t;
+    const r = el.rolo, max = maxScroll();
+    // se a pessoa rolou na mão (roda do mouse, dedo, teclado), adota a nova posição
+    if (Math.abs(r.scrollTop - ultimoSet) > 1.5) pos = r.scrollTop;
+    if (tocando && !segurando) {
+      pos = Math.min(max, pos + pxPorSeg() * dt);
+      r.scrollTop = pos;
+      if (pos >= max) { pausar(); }
+    }
+    ultimoSet = r.scrollTop;
+    if (!tocando) pos = r.scrollTop;
+
+    el.progresso.style.width = (max ? (pos / max) * 100 : 0).toFixed(2) + '%';
+    const resta = Math.max(0, max - pos) / pxPorSeg();
+    el.tempo.textContent = 'faltam ' + relogio(resta);
+    raf = requestAnimationFrame(quadro);
+  }
+
+  const relogio = (s) => { s = Math.round(s); const m = Math.floor(s / 60); return m + ':' + String(s % 60).padStart(2, '0'); };
+
+  function pula(px) {
+    pos = Math.max(0, Math.min(maxScroll(), pos + px));
+    el.rolo.scrollTop = pos; ultimoSet = el.rolo.scrollTop;
+    mostraHud();
+  }
+
+  function mudaVelocidade(d) {
+    S.speed = Math.max(1, Math.min(40, Math.round((S.speed + d) * 2) / 2));
+    salvar(); sincroniza(); mostraHud();
+  }
+  function mudaFonte(d) {
+    const ancora = guardaPosicao();
+    S.fontSize = Math.max(16, Math.min(180, S.fontSize + d));
+    salvar(); sincroniza(); aplica(); ancora(); mostraHud();
+  }
+
+  // HUD que some sozinho enquanto o texto corre
+  let timerHud = 0;
+  function mostraHud() {
+    el.prompter.classList.remove('oculto');
+    agendaOcultar();
+  }
+  function agendaOcultar() {
+    clearTimeout(timerHud);
+    timerHud = setTimeout(() => {
+      if (tocando && el.gaveta.hidden) el.prompter.classList.add('oculto');
+    }, 2500);
+  }
+
+  function abreGaveta() { el.gaveta.hidden = false; mostraHud(); }
+  function fechaGaveta() { el.gaveta.hidden = true; agendaOcultar(); }
+
+  const podeTelaCheia = () => !!document.documentElement.requestFullscreen && document.fullscreenEnabled !== false;
+  function telaCheia() {
+    if (!podeTelaCheia()) return;
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    else document.documentElement.requestFullscreen().catch(() => {});
+  }
+  if (!podeTelaCheia()) { $('#btnTelaCheia').hidden = true; $('#campoTelaCheia').hidden = true; }
+
+  async function pedeTravaTela() {
+    try { if ('wakeLock' in navigator && !el.prompter.hidden) travaTela = await navigator.wakeLock.request('screen'); }
+    catch { /* sem suporte ou negado */ }
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && !el.prompter.hidden) pedeTravaTela();
+    else if (tocando) pausar();
+  });
+
+  const acoes = {
+    sair: sai, inicio: () => { pausar(); pula(-Infinity); }, play: alterna,
+    'vel-': () => mudaVelocidade(-0.5), 'vel+': () => mudaVelocidade(0.5),
+    'fonte-': () => mudaFonte(-4), 'fonte+': () => mudaFonte(4),
+    espelhar: () => { S.mirrorX = !S.mirrorX; salvar(); sincroniza(); aplica(); },
+    telacheia: telaCheia, ajustes: () => (el.gaveta.hidden ? abreGaveta() : fechaGaveta()),
+    'fechar-ajustes': fechaGaveta,
+  };
+  el.prompter.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-acao]');
+    if (b) {
+      e.stopPropagation(); acoes[b.dataset.acao](); mostraHud();
+      if (e.detail > 0) b.blur();   // clique de mouse/dedo: Espaço volta a ser play/pausa, não "repete o botão"
+    }
+  });
+
+  // toque/clique no texto = play/pausa; segurar o dedo pausa a rolagem automática
+  el.rolo.addEventListener('click', alterna);
+  el.rolo.addEventListener('touchstart', () => { segurando = true; mostraHud(); }, { passive: true });
+  const solta = () => { segurando = false; pos = el.rolo.scrollTop; };
+  el.rolo.addEventListener('touchend', solta, { passive: true });
+  el.rolo.addEventListener('touchcancel', solta, { passive: true });
+  el.prompter.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') mostraHud(); });
+
+  addEventListener('keydown', (e) => {
+    if (el.prompter.hidden) {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); entra(); }
+      return;
+    }
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target.closest?.('#gaveta input, #gaveta select')) {
+      if (e.key === 'Escape') fechaGaveta();
+      return;
+    }
+    if (e.target.closest?.('#prompter button') && (e.key === ' ' || e.key === 'Enter')) return;  // botão focado pelo teclado
+    const linha = S.fontSize * S.lineHeight;
+    const tela = el.rolo.clientHeight * 0.6;
+    const k = e.key;
+    let feito = true;
+    if (k === ' ' || k === 'Spacebar' || k === 'k' || k === 'K' || k === 'Enter') alterna();
+    else if (k === 'ArrowUp') mudaVelocidade(0.5);
+    else if (k === 'ArrowDown') mudaVelocidade(-0.5);
+    else if (k === 'ArrowLeft') pula(-linha * 2);
+    else if (k === 'ArrowRight') pula(linha * 2);
+    else if (k === 'PageUp') pula(-tela);
+    else if (k === 'PageDown') pula(tela);
+    else if (k === 'Home') { pausar(); pula(-Infinity); }
+    else if (k === 'End') pula(Infinity);
+    else if (k === '+' || k === '=') mudaFonte(4);
+    else if (k === '-' || k === '_') mudaFonte(-4);
+    else if (k === 'm' || k === 'M') acoes.espelhar();
+    else if (k === 'f' || k === 'F') telaCheia();
+    else if (k === 'Escape') { if (!el.gaveta.hidden) fechaGaveta(); else if (!document.fullscreenElement) sai(); }
+    else feito = false;
+    if (feito) { e.preventDefault(); mostraHud(); }
+  });
+
+  el.iniciar.addEventListener('click', entra);
+
+  function EXEMPLO() {
+    return [
+      '# Bem-vindo ao teleprompter',
+      '',
+      'Este é um texto de exemplo. Apague e cole o seu roteiro, ou abra um arquivo **.txt** ou **.md**.',
+      '',
+      'Toque na tela, ou aperte **Espaço**, para pausar e continuar.',
+      '',
+      '## Dicas rápidas',
+      '',
+      '- As setas **para cima** e **para baixo** mudam a velocidade.',
+      '- As teclas **+** e **−** mudam o tamanho da letra.',
+      '- A tecla **M** espelha o texto, para usar com vidro de teleprompter.',
+      '',
+      '> Respire, olhe para a câmera e fale como se fosse para uma pessoa só.',
+      '',
+      '---',
+      '',
+      'Os ajustes e o texto ficam salvos neste navegador para a próxima vez.',
+    ].join('\n');
+  }
+
+  sincroniza(); aplica(); atualizaEstat();
+})();
+</script>
+{% endraw %}
+</body>
+</html>
